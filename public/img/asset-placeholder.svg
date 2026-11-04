@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="Placeholder aset">
+    <rect width="240" height="240" rx="24" fill="#eef2ef" />
+    <path d="M60 96l60-34 60 34v58a10 10 0 0 1-10 10H70a10 10 0 0 1-10-10z" fill="#cfe0d5" />
+    <path d="M60 96l60 34 60-34" fill="none" stroke="#9dbfa9" stroke-width="6" stroke-linejoin="round" />
+    <path d="M120 130v68" stroke="#9dbfa9" stroke-width="6" />
+    <circle cx="120" cy="96" r="14" fill="#1e6b38" opacity="0.7" />
+</svg>

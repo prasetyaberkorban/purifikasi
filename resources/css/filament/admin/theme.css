@@ -1,0 +1,125 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+@source '../../../../vendor/filament/**/*.blade.php';
+
+/*
+ | Tema panel admin PURIFIKASI
+ | Sidebar & topbar memakai hijau hutan (#0D4C1E) sesuai identitas visual,
+ | dengan aksen zaitun/emas redup (#8B8540) untuk menu aktif.
+ */
+
+:root {
+    --purif-forest: #0d4c1e;
+    --purif-forest-dark: #06240f;
+    --purif-leaf: #1e6b38;
+    --purif-olive: #8b8540;
+    --purif-sky: #6495ed;
+}
+
+/* ---------- Sidebar & Topbar ---------- */
+.fi-layout {
+    --fi-sidebar-bg: var(--purif-forest);
+}
+
+.fi-sidebar,
+.fi-sidebar-header {
+    background-color: var(--purif-forest) !important;
+    background-image: linear-gradient(180deg, #0d4c1e 0%, #06240f 100%);
+    border-color: rgb(255 255 255 / 0.08) !important;
+}
+
+.fi-sidebar {
+    & .fi-sidebar-group-label {
+        color: rgb(255 255 255 / 0.55) !important;
+        font-size: 0.68rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    & .fi-sidebar-item-btn {
+        color: rgb(255 255 255 / 0.78) !important;
+        border-radius: 0.75rem;
+
+        &:hover {
+            background-color: rgb(255 255 255 / 0.1) !important;
+            color: #fff !important;
+        }
+
+        & .fi-icon {
+            color: rgb(255 255 255 / 0.7) !important;
+        }
+    }
+
+    & .fi-sidebar-item-label {
+        color: rgb(255 255 255 / 0.82) !important;
+    }
+
+    & .fi-sidebar-item.fi-active .fi-sidebar-item-btn,
+    & .fi-sidebar-item.fi-sidebar-item-has-active-child-items .fi-sidebar-item-btn {
+        background-color: var(--purif-olive) !important;
+        color: #fff !important;
+
+        & .fi-icon {
+            color: #fff !important;
+        }
+
+        & .fi-sidebar-item-label {
+            color: #fff !important;
+        }
+    }
+
+    & .fi-sidebar-group-btn {
+        color: rgb(255 255 255 / 0.6) !important;
+
+        & .fi-icon {
+            color: rgb(255 255 255 / 0.6) !important;
+        }
+    }
+
+    & .fi-sidebar-group-collapse-btn {
+        color: rgb(255 255 255 / 0.6) !important;
+    }
+}
+
+.fi-sidebar-open-collapse-sidebar-btn,
+.fi-sidebar-close-collapse-sidebar-btn {
+    color: rgb(255 255 255 / 0.8) !important;
+    border-color: rgb(255 255 255 / 0.2) !important;
+}
+
+.fi-sidebar .fi-logo,
+.fi-sidebar-header .fi-logo {
+    justify-content: flex-start;
+}
+
+/* Brand logo di sidebar: kotak putih lembut agar logo terlihat jelas */
+.fi-sidebar-header .fi-logo img {
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.25));
+}
+
+/* ---------- Topbar ---------- */
+.fi-topbar {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e5e9e6 !important;
+
+    & .fi-topbar-nav-groups {
+        background: transparent;
+    }
+}
+
+/* ---------- Konten ---------- */
+.fi-body {
+    background-color: #f8f9fa !important;
+}
+
+/* Tombol primer memakai hijau daun Purifikasi */
+.fi-btn-color-primary {
+    --fi-btn-color: var(--purif-leaf);
+}
+
+/* Badge status */
+.fi-badge {
+    font-weight: 600;
+}

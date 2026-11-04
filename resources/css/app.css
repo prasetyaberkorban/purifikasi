@@ -1,0 +1,163 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Palet Purifikasi */
+    --color-forest: #0d4c1e;
+    --color-forest-700: #0a3d18;
+    --color-forest-900: #06240f;
+    --color-leaf: #1e6b38;
+    --color-leaf-50: #eaf4ee;
+    --color-leaf-100: #d3e9dc;
+    --color-sky: #6495ed;
+    --color-sky-50: #eef4ff;
+    --color-sky-100: #dbe7ff;
+    --color-olive: #8b8540;
+    --color-olive-50: #f6f4e3;
+    --color-olive-100: #ece8c9;
+    --color-canvas: #f8f9fa;
+    --color-ink: #16211a;
+    --color-ink-soft: #4b5a51;
+    --color-line: #e5e9e6;
+
+    --radius-card: 1rem;
+}
+
+@layer base {
+    html {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        @apply bg-canvas text-ink antialiased;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+}
+
+@utility card {
+    @apply rounded-xl border border-line bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-16px_rgba(16,24,40,0.18)];
+}
+
+@utility badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap;
+}
+
+@layer components {
+    .btn-primary,
+    .btn-olive,
+    .btn-forest,
+    .btn-ghost,
+    .btn-soft {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition
+            focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
+    }
+
+    .btn-primary {
+        @apply bg-leaf text-white shadow-sm hover:bg-leaf/90 focus-visible:outline-leaf;
+    }
+
+    .btn-olive {
+        @apply bg-olive text-white shadow-sm hover:bg-olive/90 focus-visible:outline-olive;
+    }
+
+    .btn-forest {
+        @apply bg-forest text-white hover:bg-forest-700 focus-visible:outline-forest;
+    }
+
+    .btn-ghost {
+        @apply border border-line bg-white text-ink-soft hover:border-leaf/40 hover:text-forest;
+    }
+
+    .btn-soft {
+        @apply bg-leaf-50 text-forest hover:bg-leaf-100;
+    }
+
+    .badge-leaf,
+    .badge-sky,
+    .badge-olive,
+    .badge-danger,
+    .badge-muted {
+        @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap;
+    }
+
+    .badge-leaf {
+        @apply bg-leaf-50 text-leaf;
+    }
+
+    .badge-sky {
+        @apply bg-sky-50 text-[#2f5fbf];
+    }
+
+    .badge-olive {
+        @apply bg-olive-50 text-[#6b6524];
+    }
+
+    .badge-danger {
+        @apply bg-red-50 text-red-600;
+    }
+
+    .badge-muted {
+        @apply bg-slate-100 text-slate-600;
+    }
+
+    .field {
+        @apply w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm text-ink shadow-sm
+            placeholder:text-slate-400 focus:border-leaf focus:ring-2 focus:ring-leaf/20 focus:outline-none;
+    }
+
+    .label {
+        @apply mb-1.5 block text-sm font-medium text-ink-soft;
+    }
+
+    .table-wrap {
+        @apply w-full overflow-x-auto;
+    }
+
+    .data-table {
+        @apply w-full min-w-[56rem] border-collapse text-sm;
+    }
+
+    .data-table thead th {
+        @apply bg-[#f2f5f3] px-4 py-3 text-left text-[0.7rem] font-semibold tracking-wide text-ink-soft uppercase;
+    }
+
+    .data-table tbody td {
+        @apply border-t border-line px-4 py-3.5 align-middle;
+    }
+
+    .data-table tbody tr:hover {
+        @apply bg-leaf-50/40;
+    }
+
+    .nav-link {
+        @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/75 transition
+            hover:bg-white/10 hover:text-white;
+    }
+
+    .nav-link-active {
+        @apply bg-olive text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] hover:bg-olive;
+    }
+
+    .stat-card {
+        @apply rounded-xl border border-line bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-16px_rgba(16,24,40,0.18)] sm:p-5;
+    }
+}
+
+@layer utilities {
+    .safe-bottom {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+}
