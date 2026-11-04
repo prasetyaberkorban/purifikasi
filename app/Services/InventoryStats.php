@@ -41,7 +41,7 @@ class InventoryStats
     public function conditionBreakdown(): Collection
     {
         $counts = Asset::query()
-            ->selectRaw('condition, COUNT(*) as total')
+            ->selectRaw('`condition`, COUNT(*) as total')
             ->groupBy('condition')
             ->pluck('total', 'condition');
 
