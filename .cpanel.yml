@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/puri4646/public_html/database.purifikasiindonesia.com/
+    - /bin/cp -R * $DEPLOYPATH
