@@ -132,11 +132,22 @@
                             <td>
                                 <div class="flex items-center justify-end gap-1">
                                     @can('update', $asset)
-                                        <a href="{{ route('assets.edit', $asset) }}" class="rounded-lg p-2 text-ink-soft hover:bg-canvas hover:text-forest" aria-label="Ubah {{ $asset->name }}">
+                                        <a href="{{ route('assets.edit', $asset) }}" class="rounded-lg p-2 text-ink-soft hover:bg-canvas hover:text-forest" aria-label="Ubah {{ $asset->name }}" title="Ubah Aset">
                                             <x-ui-icon name="pencil" class="h-4 w-4" />
                                         </a>
                                     @endcan
-                                    <a href="{{ route('assets.show', $asset) }}" class="rounded-lg p-2 text-ink-soft hover:bg-canvas hover:text-forest" aria-label="Detail {{ $asset->name }}">
+                                    @can('delete', $asset)
+                                        <form method="POST" action="{{ route('assets.destroy', $asset) }}"
+                                              onsubmit="return confirm('Apakah Anda yakin ingin menghapus aset {{ $asset->name }} ({{ $asset->code }}) dari inventaris?');"
+                                              class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="rounded-lg p-2 text-ink-soft hover:bg-red-50 hover:text-red-600 transition" aria-label="Hapus {{ $asset->name }}" title="Hapus Aset">
+                                                <x-ui-icon name="trash" class="h-4 w-4" />
+                                            </button>
+                                        </form>
+                                    @endcan
+                                    <a href="{{ route('assets.show', $asset) }}" class="rounded-lg p-2 text-ink-soft hover:bg-canvas hover:text-forest" aria-label="Detail {{ $asset->name }}" title="Detail Aset">
                                         <x-ui-icon name="arrow-up-right" class="h-4 w-4" />
                                     </a>
                                 </div>

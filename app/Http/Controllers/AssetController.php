@@ -216,6 +216,7 @@ class AssetController extends Controller
     public function updateItem(Request $request, Asset $asset, \App\Models\AssetItem $item): RedirectResponse
     {
         $validated = $request->validate([
+            'serial_number'  => ['nullable', 'string', 'max:255'],
             'condition'      => ['required', 'string'],
             'photo'          => ['nullable', 'image', 'max:5120'],
             'notes'          => ['nullable', 'string', 'max:255'],
@@ -234,5 +235,78 @@ class AssetController extends Controller
         $item->update($validated);
 
         return back()->with('status', "Kondisi unit {$item->item_code} berhasil diperbarui.");
+    }
+
+    public function addItem(Request $request, Asset $asset): RedirectResponse
+    {
+        $validated = $request->validate([
+            'serial_number'  => ['nullable', 'string', 'max:255'],
+            'condition'      => ['required', 'string'],
+            'photo'          => ['nullable', 'image', 'max:5120'],
+            'notes'          => ['nullable', 'string', 'max:255'],
+            'room'           => ['nullable', 'string', 'max:255'],
+            'purchase_price' => ['nullable', 'numeric', 'min:0'],
+        ]);
+
+        $nextUnit = ((int) $asset->items()->max('unit_number')) + 1;
+        $itemCode = sprintf('%s-%02d', $asset->code, $nextUnit);
+
+        $photoPath = null;
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('asset-items', 'public');
+        }
+
+        $asset->items()->create([
+            'item_code'      => $itemCode,
+            'unit_number'    => $nextUnit,
+            'serial_number'  => $validated['serial_number'] ?? null,
+            'condition'      => $validated['condition'],
+            'status'         => \App\Enums\AssetStatus::Tersedia,
+            'photo_path'     => $photoPath,
+            'notes'          => $validated['notes'] ?? null,
+            'room'           => $validated['room'] ?? null,
+            'purchase_price' => $validated['purchase_price'] ?? null,
+        ]);
+
+        $asset->increment('quantity');
+
+        AssetActivity::query()->create([
+            'user_id'     => $request->user()->getKey(),
+            'type'        => 'created',
+            'subject'     => $asset->code,
+            'description' => "{$request->user()->name} menambahkan unit baru #{$nextUnit} ({$itemCode}) untuk aset {$asset->name}.",
+        ]);
+
+        return back()->with('status', "Unit baru #{$nextUnit} ({$itemCode}) berhasil ditambahkan.");
+    }
+
+    public function destroyItem(Request $request, Asset $asset, \App\Models\AssetItem $item): RedirectResponse
+    {
+        if ($item->status === \App\Enums\AssetStatus::Dipinjam) {
+            return back()->withErrors(['asset' => "Unit {$item->item_code} sedang dipinjam dan tidak dapat dihapus."]);
+        }
+
+        if ($asset->quantity <= 1) {
+            return back()->withErrors(['asset' => "Unit terakhir tidak dapat dihapus. Jika ingin menghapus seluruh aset, gunakan tombol Hapus Aset."]);
+        }
+
+        if ($item->photo_path) {
+            Storage::disk('public')->delete($item->photo_path);
+        }
+
+        $unitCode = $item->item_code;
+        $unitNum = $item->unit_number;
+        $item->delete();
+
+        $asset->decrement('quantity');
+
+        AssetActivity::query()->create([
+            'user_id'     => $request->user()->getKey(),
+            'type'        => 'deleted',
+            'subject'     => $asset->code,
+            'description' => "{$request->user()->name} menghapus unit #{$unitNum} ({$unitCode}) dari aset {$asset->name}.",
+        ]);
+
+        return back()->with('status', "Unit #{$unitNum} ({$unitCode}) berhasil dihapus.");
     }
 }

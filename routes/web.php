@@ -36,7 +36,9 @@ Route::middleware(['auth', 'role'])->group(function () {
     Route::put('aset/{asset}', [AssetController::class, 'update'])->middleware('role:admin')->name('assets.update');
     Route::delete('aset/{asset}', [AssetController::class, 'destroy'])->middleware('role:admin')->name('assets.destroy');
     Route::post('aset/{asset}/cek', [AssetController::class, 'check'])->middleware('role:admin')->name('assets.check');
+    Route::post('aset/{asset}/unit', [AssetController::class, 'addItem'])->middleware('role:admin')->name('assets.items.store');
     Route::post('aset/{asset}/unit/{item}', [AssetController::class, 'updateItem'])->name('assets.items.update');
+    Route::delete('aset/{asset}/unit/{item}', [AssetController::class, 'destroyItem'])->middleware('role:admin')->name('assets.items.destroy');
 
     // Label & QR
     Route::get('label', [ScanController::class, 'labels'])->middleware('role:admin')->name('labels.index');

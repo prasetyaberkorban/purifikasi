@@ -14,10 +14,6 @@
                     <div class="min-w-0 flex-1">
                         <div class="flex flex-wrap items-center gap-2">
                             <x-status-badge :status="$asset->status" />
-                            <x-status-badge :status="$asset->condition" />
-                            @if ($asset->isCritical())
-                                <span class="badge-olive">Stok kritis</span>
-                            @endif
                         </div>
                         <h2 class="mt-2 text-xl font-bold text-ink">{{ $asset->name }}</h2>
                         <p class="font-mono text-[0.75rem] text-ink-soft">{{ $asset->code }}</p>
@@ -26,10 +22,6 @@
                             <div>
                                 <dt class="text-ink-soft">Kategori</dt>
                                 <dd class="font-semibold text-ink">{{ $asset->category?->name ?? '-' }}</dd>
-                            </div>
-                            <div>
-                                <dt class="text-ink-soft">Serial Number</dt>
-                                <dd class="font-semibold text-ink">{{ $asset->serial_number ?? '-' }}</dd>
                             </div>
                             <div>
                                 <dt class="text-ink-soft">Pemeriksaan terakhir</dt>
@@ -86,13 +78,70 @@
             </section>
 
             {{-- Daftar Unit Fisik Barang --}}
-            <section class="card overflow-hidden">
+            <section class="card overflow-hidden" x-data="{ addUnitOpen: false }">
                 <div class="flex items-center justify-between border-b border-line px-4 py-4 sm:px-5">
                     <div>
                         <h2 class="text-sm font-bold text-ink">Daftar Unit Barang</h2>
-                        <p class="text-[0.72rem] text-ink-soft">Kondisi, foto fisik, dan penempatan ruangan masing-masing unit (total {{ $asset->items->count() }} unit).</p>
+                        <p class="text-[0.72rem] text-ink-soft">Kondisi, serial number, foto fisik, dan penempatan ruangan masing-masing unit (total {{ $asset->items->count() }} unit).</p>
                     </div>
+                    @can('update', $asset)
+                        <button type="button" @click="addUnitOpen = !addUnitOpen"
+                                class="btn-primary py-1.5 px-3 text-xs inline-flex items-center gap-1.5 shadow-xs">
+                            <x-ui-icon name="plus" class="h-3.5 w-3.5" />
+                            <span x-text="addUnitOpen ? 'Tutup Form' : 'Tambah Barang'">Tambah Barang</span>
+                        </button>
+                    @endcan
                 </div>
+
+                {{-- Form Tambah Unit Barang Baru --}}
+                @can('update', $asset)
+                    <div x-show="addUnitOpen" x-cloak class="border-b border-line bg-leaf-50/60 p-4 sm:p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-xs font-bold text-forest">Form Tambah Unit Barang Baru (#{{ ((int) $asset->items->max('unit_number')) + 1 }})</h3>
+                            <button type="button" @click="addUnitOpen = false" class="text-ink-soft hover:text-ink">
+                                <x-ui-icon name="x" class="h-4 w-4" />
+                            </button>
+                        </div>
+                        <form method="POST" action="{{ route('assets.items.store', $asset) }}" enctype="multipart/form-data" class="space-y-3">
+                            @csrf
+                            <div class="grid gap-3 sm:grid-cols-3">
+                                <div>
+                                    <label class="label">Serial Number</label>
+                                    <input type="text" name="serial_number" class="field" placeholder="Contoh: SN-12345678">
+                                </div>
+                                <div>
+                                    <label class="label">Kondisi Unit <span class="text-red-500">*</span></label>
+                                    <select name="condition" class="field" required>
+                                        @foreach (\App\Enums\AssetCondition::options() as $val => $lbl)
+                                            <option value="{{ $val }}">{{ $lbl }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="label">Ruangan</label>
+                                    <input type="text" name="room" class="field" placeholder="Contoh: Rak Perkakas, Gudang B">
+                                </div>
+                            </div>
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <div>
+                                    <label class="label">Harga Satuan Barang (Rp)</label>
+                                    <input type="number" name="purchase_price" class="field" placeholder="0" min="0" step="1000">
+                                </div>
+                                <div>
+                                    <label class="label">Catatan Unit</label>
+                                    <input type="text" name="notes" class="field" placeholder="Kondisi atau keterangan unit">
+                                </div>
+                            </div>
+                            <div>
+                                <x-photo-picker name="photo" id="photo_item_new" label="Foto Kondisi Unit (Opsional)" />
+                            </div>
+                            <div class="flex justify-end gap-2 pt-2">
+                                <button type="button" @click="addUnitOpen = false" class="btn-ghost py-1 px-3 text-xs">Batal</button>
+                                <button type="submit" class="btn-forest py-1 px-4 text-xs font-semibold">Simpan & Tambah Unit</button>
+                            </div>
+                        </form>
+                    </div>
+                @endcan
 
                 <div class="divide-y divide-line">
                     @forelse ($asset->items as $item)
@@ -107,6 +156,11 @@
                                             <span class="font-mono text-xs font-semibold text-ink">{{ $item->item_code }}</span>
                                             <x-status-badge :status="$item->condition" />
                                             <x-status-badge :status="$item->status" />
+                                            @if ($item->serial_number)
+                                                <span class="inline-flex items-center gap-1 rounded bg-canvas px-1.5 py-0.5 text-[0.65rem] font-mono font-medium text-ink border border-line" title="Serial Number">
+                                                    <span>SN: {{ $item->serial_number }}</span>
+                                                </span>
+                                            @endif
                                             @if ($item->room)
                                                 <span class="inline-flex items-center gap-1 rounded bg-canvas px-1.5 py-0.5 text-[0.65rem] font-medium text-ink border border-line">
                                                     <x-ui-icon name="pin" class="h-2.5 w-2.5 text-forest" />
@@ -115,7 +169,11 @@
                                             @endif
                                         </div>
                                         <p class="mt-0.5 text-[0.72rem] text-ink-soft">
-                                            Unit {{ $item->unit_number }} dari {{ $asset->quantity }} &middot; {{ $item->notes ?? 'Kondisi fisik unit tercatat' }}
+                                            Unit {{ $item->unit_number }} dari {{ $asset->quantity }}
+                                            @if ($item->serial_number)
+                                                &middot; SN: <span class="font-mono font-semibold text-ink">{{ $item->serial_number }}</span>
+                                            @endif
+                                            &middot; {{ $item->notes ?? 'Kondisi fisik unit tercatat' }}
                                             @if ($item->room)
                                                 &middot; Ruangan: <span class="font-semibold text-ink">{{ $item->room }}</span>
                                             @endif
@@ -158,6 +216,19 @@
                                             <x-ui-icon name="pencil" class="h-4 w-4" />
                                         </button>
                                     @endcan
+
+                                    @can('delete', $asset)
+                                        <form method="POST" action="{{ route('assets.items.destroy', [$asset, $item]) }}"
+                                              onsubmit="return confirm('Apakah Anda yakin ingin menghapus Unit #{{ $item->unit_number }} ({{ $item->item_code }})? Total stok barang akan berkurang 1.');"
+                                              class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="rounded-lg p-1.5 text-ink-soft hover:bg-red-50 hover:text-red-600 transition"
+                                                    title="Hapus Unit Barang ini">
+                                                <x-ui-icon name="trash" class="h-4 w-4" />
+                                            </button>
+                                        </form>
+                                    @endcan
                                 </div>
                             </div>
 
@@ -178,7 +249,11 @@
                                 <div x-show="editMode" x-cloak class="mt-3.5 rounded-xl border border-leaf/30 bg-leaf-50/50 p-4">
                                     <form method="POST" action="{{ route('assets.items.update', [$asset, $item]) }}" enctype="multipart/form-data" class="space-y-3">
                                         @csrf
-                                        <div class="grid gap-3 sm:grid-cols-2">
+                                        <div class="grid gap-3 sm:grid-cols-3">
+                                            <div>
+                                                <label class="label">Serial Number</label>
+                                                <input type="text" name="serial_number" value="{{ old('serial_number', $item->serial_number) }}" class="field" placeholder="Contoh: SN-12345678">
+                                            </div>
                                             <div>
                                                 <label class="label">Kondisi Unit #{{ $item->unit_number }}</label>
                                                 <select name="condition" class="field" required>
@@ -188,24 +263,24 @@
                                                 </select>
                                             </div>
                                             <div>
-                                                <x-photo-picker name="photo" id="photo_item_{{ $item->id }}"
-                                                                label="Foto Kondisi Terakhir"
-                                                                :current-url="$item->photo_path ? asset('storage/'.$item->photo_path) : null" />
+                                                <label class="label">Ruangan</label>
+                                                <input type="text" name="room" value="{{ old('room', $item->room) }}" class="field" placeholder="Contoh: Rak Perkakas, Gudang B">
                                             </div>
                                         </div>
                                         <div class="grid gap-3 sm:grid-cols-2">
                                             <div>
+                                                <label class="label">Harga Barang (Rp)</label>
+                                                <input type="number" name="purchase_price" value="{{ old('purchase_price', $item->purchase_price ? (int)$item->purchase_price : '') }}" class="field" placeholder="0" min="0" step="1000">
+                                            </div>
+                                            <div>
                                                 <label class="label">Catatan Unit</label>
                                                 <input type="text" name="notes" value="{{ old('notes', $item->notes) }}" class="field" placeholder="Contoh: lecet di pojok kanan, fungsi normal">
                                             </div>
-                                            <div>
-                                                <label class="label">Ruangan</label>
-                                                <input type="text" name="room" value="{{ old('room', $item->room) }}" class="field" placeholder="Contoh: Rak Perkakas, Gudang B, Meja 3">
-                                            </div>
                                         </div>
                                         <div>
-                                            <label class="label">Harga Barang (Rp)</label>
-                                            <input type="number" name="purchase_price" value="{{ old('purchase_price', $item->purchase_price ? (int)$item->purchase_price : '') }}" class="field" placeholder="0" min="0" step="1000">
+                                            <x-photo-picker name="photo" id="photo_item_{{ $item->id }}"
+                                                            label="Foto Kondisi Terakhir"
+                                                            :current-url="$item->photo_path ? asset('storage/'.$item->photo_path) : null" />
                                         </div>
                                         <div class="flex justify-end gap-2 pt-1">
                                             <button type="button" @click="editMode = false" class="btn-ghost py-1 text-xs">Batal</button>

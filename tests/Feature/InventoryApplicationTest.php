@@ -410,6 +410,65 @@ class InventoryApplicationTest extends TestCase
         $this->assertEquals(75000, $item->purchase_price);
     }
 
+    public function test_can_update_asset_item_serial_number(): void
+    {
+        $admin = $this->user();
+        $asset = $this->seedAsset();
+        $asset->syncItems();
+        $item = $asset->items()->first();
+
+        $this->actingAs($admin)
+            ->post(route('assets.items.update', [$asset, $item]), [
+                'serial_number' => 'SN-TEST-9988',
+                'condition' => 'baik',
+                'room' => 'Ruang Server',
+                'purchase_price' => 120000,
+            ])
+            ->assertRedirect();
+
+        $this->assertSame('SN-TEST-9988', $item->refresh()->serial_number);
+    }
+
+    public function test_can_add_and_delete_asset_item(): void
+    {
+        $admin = $this->user();
+        $asset = $this->seedAsset();
+        $asset->syncItems();
+        $initialCount = $asset->items()->count();
+
+        // Tambah unit baru
+        $this->actingAs($admin)
+            ->post(route('assets.items.store', $asset), [
+                'serial_number' => 'SN-NEW-001',
+                'condition' => 'baik',
+                'room' => 'Gudang Utama',
+                'purchase_price' => 50000,
+            ])
+            ->assertRedirect();
+
+        $this->assertEquals($initialCount + 1, $asset->fresh()->quantity);
+        $newItem = $asset->items()->where('serial_number', 'SN-NEW-001')->first();
+        $this->assertNotNull($newItem);
+
+        // Hapus unit tersebut
+        $this->actingAs($admin)
+            ->delete(route('assets.items.destroy', [$asset, $newItem]))
+            ->assertRedirect();
+
+        $this->assertEquals($initialCount, $asset->fresh()->quantity);
+        $this->assertNull($asset->items()->where('serial_number', 'SN-NEW-001')->first());
+    }
+
+    public function test_asset_index_shows_delete_button_for_admin(): void
+    {
+        $admin = $this->user();
+        $asset = $this->seedAsset();
+
+        $response = $this->actingAs($admin)->get(route('assets.index'));
+        $response->assertOk();
+        $response->assertSee('title="Hapus Aset"', false);
+    }
+
     public function test_sidebar_renders_submission_collection_link(): void
     {
         $admin = $this->user();

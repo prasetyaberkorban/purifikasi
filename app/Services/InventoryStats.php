@@ -18,7 +18,7 @@ class InventoryStats
 
         $critical = Asset::query()
             ->get(['id', 'quantity', 'minimum_stock', 'borrowed_quantity'])
-            ->filter(fn (Asset $a) => $a->isCritical())
+            ->filter(fn ($a) => $a->isCritical())
             ->count();
 
         $activityToday = (int) \App\Models\AssetActivity::query()->whereDate('created_at', today())->count();
@@ -29,7 +29,7 @@ class InventoryStats
             'borrowed_units' => $activeLoans,
             'critical_count' => $critical,
             'activity_today' => $activityToday,
-            'value_total' => (float) Asset::with('items')->get()->sum(fn (Asset $a) => $a->totalValue()),
+            'value_total' => (float) Asset::with('items')->get()->sum(fn ($a) => $a->totalValue()),
         ];
     }
 
@@ -46,7 +46,7 @@ class InventoryStats
             ->pluck('total', 'condition');
 
         return collect(AssetCondition::cases())
-            ->map(fn (AssetCondition $c) => [
+            ->map(fn ($c) => [
                 'label' => $c->label(),
                 'value' => (int) ($counts[$c->value] ?? 0),
                 'color' => $c->color(),
@@ -91,10 +91,10 @@ class InventoryStats
             ->whereNotNull('purchase_date')
             ->with('items')
             ->get()
-            ->groupBy(fn (Asset $a) => $a->purchase_date->format('Y'))
+            ->groupBy(fn ($a) => $a->purchase_date->format('Y'))
             ->map(fn (Collection $rows, string $year) => [
                 'label' => $year,
-                'value' => (float) $rows->sum(fn (Asset $a) => $a->totalValue()),
+                'value' => (float) $rows->sum(fn ($a) => $a->totalValue()),
             ])
             ->sortKeys()
             ->take(-$limit)
