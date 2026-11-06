@@ -4,3 +4,7 @@ deployment:
     - export DEPLOYPATH=/home/puri4646/public_html/database.purifikasiindonesia.com/
     - /bin/cp -R * $DEPLOYPATH
     - /bin/cp -a .htaccess $DEPLOYPATH
+    - /home/puri4646/php84 ${DEPLOYPATH}artisan config:clear
+    - /home/puri4646/php84 ${DEPLOYPATH}artisan route:clear
+    - /home/puri4646/php84 ${DEPLOYPATH}artisan view:clear
+    - /home/puri4646/php84 ${DEPLOYPATH}artisan cache:clear

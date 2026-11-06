@@ -207,7 +207,7 @@ class ExcelReportService
                 $item->code,
                 $item->created_at?->format('d/m/Y'),
                 $item->name,
-                $item->leaveTypeLabel(),
+                $item->leave_type,
                 $item->days_count,
                 $item->description,
                 ucfirst($item->status),

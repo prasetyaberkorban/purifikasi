@@ -53,7 +53,7 @@
                     <td><strong>{{ $item->code }}</strong></td>
                     <td>{{ $item->created_at?->format('d/m/Y') }}</td>
                     <td>{{ $item->name }}</td>
-                    <td>{{ $item->leaveTypeLabel() }}</td>
+                    <td>{{ $item->leave_type }}</td>
                     <td class="right">{{ $item->days_count }} hari</td>
                     <td>{{ $item->description }}</td>
                     <td><span class="badge">{{ ucfirst($item->status) }}</span></td>
