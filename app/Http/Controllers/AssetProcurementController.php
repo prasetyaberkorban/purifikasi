@@ -13,6 +13,34 @@ class AssetProcurementController extends Controller
 {
     public function index(Request $request): View
     {
+        return view('procurements.index', [
+            'procurements' => $this->buildQuery($request)->paginate(12)->withQueryString(),
+            'search' => $request->string('q')->toString(),
+        ]);
+    }
+
+    public function exportPdf(Request $request): \Symfony\Component\HttpFoundation\Response
+    {
+        $rows = $this->buildQuery($request)->get();
+        $filters = ['q' => $request->string('q')->toString()];
+        $pdf = app(\App\Services\PdfReportService::class)->render('procurements', $rows, $filters);
+
+        return response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="laporan-realisasi-'.now()->format('Ymd-His').'.pdf"',
+        ]);
+    }
+
+    public function exportExcel(Request $request): StreamedResponse
+    {
+        $rows = $this->buildQuery($request)->get();
+        $filters = ['q' => $request->string('q')->toString()];
+
+        return app(\App\Services\ExcelReportService::class)->stream('procurements', $rows, $filters);
+    }
+
+    private function buildQuery(Request $request)
+    {
         $query = AssetProcurement::query()->with('user')->latest();
 
         if ($request->filled('q')) {
@@ -31,10 +59,7 @@ class AssetProcurementController extends Controller
             $query->where('user_id', $request->user()->id);
         }
 
-        return view('procurements.index', [
-            'procurements' => $query->paginate(12)->withQueryString(),
-            'search' => $request->string('q')->toString(),
-        ]);
+        return $query;
     }
 
     public function create(): View

@@ -10,13 +10,24 @@ use Illuminate\Support\Collection;
 class PdfReportService
 {
     /**
-     * @param  Collection<int, Asset|AssetLoan>  $rows
+     * @param  Collection<int, mixed>  $rows
      * @param  array<string, string>  $filters
      * @param  array<string, int|float>  $totals
      */
-    public function render(string $type, Collection $rows, array $filters, array $totals): string
+    public function render(string $type, Collection $rows, array $filters = [], array $totals = []): string
     {
-        $pdf = Pdf::loadView($type === 'loans' ? 'reports.pdf.loans' : 'reports.pdf.assets', [
+        $viewMap = [
+            'loans' => 'reports.pdf.loans',
+            'maintenances' => 'reports.pdf.maintenances',
+            'procurements' => 'reports.pdf.procurements',
+            'leaves' => 'reports.pdf.leaves',
+            'vehicle-loans' => 'reports.pdf.vehicle-loans',
+            'attendances' => 'reports.pdf.attendances',
+        ];
+
+        $view = $viewMap[$type] ?? 'reports.pdf.assets';
+
+        $pdf = Pdf::loadView($view, [
             'rows' => $rows,
             'filters' => $filters,
             'totals' => $totals,

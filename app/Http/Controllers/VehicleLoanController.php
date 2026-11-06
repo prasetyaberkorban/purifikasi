@@ -12,6 +12,42 @@ class VehicleLoanController extends Controller
 {
     public function index(Request $request): View
     {
+        return view('vehicle-loans.index', [
+            'loans' => $this->buildQuery($request)->paginate(12)->withQueryString(),
+            'search' => $request->string('q')->toString(),
+            'selectedVehicle' => $request->string('vehicle_type')->toString(),
+            'vehicleTypes' => VehicleLoan::vehicleTypeOptions(),
+        ]);
+    }
+
+    public function exportPdf(Request $request): \Symfony\Component\HttpFoundation\Response
+    {
+        $rows = $this->buildQuery($request)->get();
+        $filters = [
+            'q' => $request->string('q')->toString(),
+            'vehicle_type' => $request->string('vehicle_type')->toString(),
+        ];
+        $pdf = app(\App\Services\PdfReportService::class)->render('vehicle-loans', $rows, $filters);
+
+        return response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="laporan-peminjaman-kendaraan-'.now()->format('Ymd-His').'.pdf"',
+        ]);
+    }
+
+    public function exportExcel(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $rows = $this->buildQuery($request)->get();
+        $filters = [
+            'q' => $request->string('q')->toString(),
+            'vehicle_type' => $request->string('vehicle_type')->toString(),
+        ];
+
+        return app(\App\Services\ExcelReportService::class)->stream('vehicle-loans', $rows, $filters);
+    }
+
+    private function buildQuery(Request $request)
+    {
         $query = VehicleLoan::query()->with('user')->latest();
 
         if ($request->filled('q')) {
@@ -33,12 +69,7 @@ class VehicleLoanController extends Controller
             $query->where('user_id', $request->user()->id);
         }
 
-        return view('vehicle-loans.index', [
-            'loans' => $query->paginate(12)->withQueryString(),
-            'search' => $request->string('q')->toString(),
-            'selectedVehicle' => $request->string('vehicle_type')->toString(),
-            'vehicleTypes' => VehicleLoan::vehicleTypeOptions(),
-        ]);
+        return $query;
     }
 
     public function create(): View

@@ -37,9 +37,7 @@
                 <th>Kode Aset</th>
                 <th>Nama Barang</th>
                 <th>Kategori</th>
-                <th>Lokasi</th>
                 <th>Ruangan</th>
-                <th>Unit</th>
                 <th class="right">Stok</th>
                 <th class="right">Dipinjam</th>
                 <th class="right">Tersedia</th>
@@ -54,14 +52,12 @@
                     <td>{{ $asset->code }}</td>
                     <td>{{ $asset->name }}</td>
                     <td>{{ $asset->category?->name }}</td>
-                    <td>{{ $asset->location?->label }}</td>
                     <td>
                         @php
                             $itemRooms = $asset->items->pluck('room')->filter()->unique();
                         @endphp
                         {{ $itemRooms->isNotEmpty() ? $itemRooms->implode(', ') : ($asset->room ?? '-') }}
                     </td>
-                    <td>{{ $asset->owner_unit }}</td>
                     <td class="right">{{ $asset->quantity }}</td>
                     <td class="right">{{ $asset->borrowed_quantity }}</td>
                     <td class="right">{{ $asset->availableQuantity() }}</td>
@@ -80,7 +76,5 @@
         {{ number_format($totals['loans'], 0, ',', '.') }} unit sedang dipinjam &middot;
         nilai aset Rp {{ number_format($totals['value'], 0, ',', '.') }}
     </div>
-
-    <div class="footer">SGI - Sistem Inventaris Kantor Purifikasi</div>
 </body>
 </html>

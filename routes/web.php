@@ -71,12 +71,16 @@ Route::middleware(['auth', 'role'])->group(function () {
     Route::get('service/formulir', [\App\Http\Controllers\AssetMaintenanceController::class, 'create'])->name('services.create');
     Route::post('service', [\App\Http\Controllers\AssetMaintenanceController::class, 'store'])->name('services.store');
     Route::get('service', [\App\Http\Controllers\AssetMaintenanceController::class, 'index'])->name('services.index');
+    Route::get('service/ekspor/pdf', [\App\Http\Controllers\AssetMaintenanceController::class, 'exportPdf'])->name('services.export.pdf');
+    Route::get('service/ekspor/excel', [\App\Http\Controllers\AssetMaintenanceController::class, 'exportExcel'])->name('services.export.excel');
     Route::get('service/{maintenance}', [\App\Http\Controllers\AssetMaintenanceController::class, 'show'])->name('services.show');
 
     // Realisasi Pengadaan & Aset Kantor
     Route::get('pengadaan/formulir', [\App\Http\Controllers\AssetProcurementController::class, 'create'])->name('procurements.create');
     Route::post('pengadaan', [\App\Http\Controllers\AssetProcurementController::class, 'store'])->name('procurements.store');
     Route::get('pengadaan', [\App\Http\Controllers\AssetProcurementController::class, 'index'])->name('procurements.index');
+    Route::get('pengadaan/ekspor/pdf', [\App\Http\Controllers\AssetProcurementController::class, 'exportPdf'])->name('procurements.export.pdf');
+    Route::get('pengadaan/ekspor/excel', [\App\Http\Controllers\AssetProcurementController::class, 'exportExcel'])->name('procurements.export.excel');
     Route::get('pengadaan/{procurement}', [\App\Http\Controllers\AssetProcurementController::class, 'show'])->name('procurements.show');
     Route::get('pengadaan/{procurement}/unduh', [\App\Http\Controllers\AssetProcurementController::class, 'download'])->name('procurements.download');
 
@@ -84,6 +88,8 @@ Route::middleware(['auth', 'role'])->group(function () {
     Route::get('izin/formulir', [\App\Http\Controllers\EmployeeLeaveController::class, 'create'])->name('leaves.create');
     Route::post('izin', [\App\Http\Controllers\EmployeeLeaveController::class, 'store'])->name('leaves.store');
     Route::get('izin', [\App\Http\Controllers\EmployeeLeaveController::class, 'index'])->name('leaves.index');
+    Route::get('izin/ekspor/pdf', [\App\Http\Controllers\EmployeeLeaveController::class, 'exportPdf'])->name('leaves.export.pdf');
+    Route::get('izin/ekspor/excel', [\App\Http\Controllers\EmployeeLeaveController::class, 'exportExcel'])->name('leaves.export.excel');
     Route::get('izin/{leave}', [\App\Http\Controllers\EmployeeLeaveController::class, 'show'])->name('leaves.show');
     Route::get('izin/{leave}/unduh', [\App\Http\Controllers\EmployeeLeaveController::class, 'download'])->name('leaves.download');
 
@@ -91,12 +97,16 @@ Route::middleware(['auth', 'role'])->group(function () {
     Route::get('peminjaman-kendaraan/formulir', [\App\Http\Controllers\VehicleLoanController::class, 'create'])->name('vehicle-loans.create');
     Route::post('peminjaman-kendaraan', [\App\Http\Controllers\VehicleLoanController::class, 'store'])->name('vehicle-loans.store');
     Route::get('peminjaman-kendaraan', [\App\Http\Controllers\VehicleLoanController::class, 'index'])->name('vehicle-loans.index');
+    Route::get('peminjaman-kendaraan/ekspor/pdf', [\App\Http\Controllers\VehicleLoanController::class, 'exportPdf'])->name('vehicle-loans.export.pdf');
+    Route::get('peminjaman-kendaraan/ekspor/excel', [\App\Http\Controllers\VehicleLoanController::class, 'exportExcel'])->name('vehicle-loans.export.excel');
     Route::get('peminjaman-kendaraan/{vehicleLoan}', [\App\Http\Controllers\VehicleLoanController::class, 'show'])->name('vehicle-loans.show');
 
     // Daftar Hadir
     Route::get('daftar-hadir/formulir', [\App\Http\Controllers\MeetingAttendanceController::class, 'create'])->name('attendances.create');
     Route::post('daftar-hadir', [\App\Http\Controllers\MeetingAttendanceController::class, 'store'])->name('attendances.store');
     Route::get('daftar-hadir', [\App\Http\Controllers\MeetingAttendanceController::class, 'index'])->name('attendances.index');
+    Route::get('daftar-hadir/ekspor/pdf', [\App\Http\Controllers\MeetingAttendanceController::class, 'exportPdf'])->name('attendances.export.pdf');
+    Route::get('daftar-hadir/ekspor/excel', [\App\Http\Controllers\MeetingAttendanceController::class, 'exportExcel'])->name('attendances.export.excel');
     Route::get('daftar-hadir/{attendance}', [\App\Http\Controllers\MeetingAttendanceController::class, 'show'])->name('attendances.show');
 
     // Penilaian Fatik Individual

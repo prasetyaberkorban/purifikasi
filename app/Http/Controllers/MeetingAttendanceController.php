@@ -12,6 +12,46 @@ class MeetingAttendanceController extends Controller
 {
     public function index(Request $request): View
     {
+        return view('attendances.index', [
+            'attendances' => $this->buildQuery($request)->paginate(15)->withQueryString(),
+            'search' => $request->string('q')->toString(),
+            'selectedBranch' => $request->string('branch')->toString(),
+            'selectedActivity' => $request->string('activity_type')->toString(),
+            'branchOptions' => MeetingAttendance::branchOptions(),
+            'activityOptions' => MeetingAttendance::activityTypeOptions(),
+        ]);
+    }
+
+    public function exportPdf(Request $request): \Symfony\Component\HttpFoundation\Response
+    {
+        $rows = $this->buildQuery($request)->get();
+        $filters = [
+            'q' => $request->string('q')->toString(),
+            'branch' => $request->string('branch')->toString(),
+            'activity_type' => $request->string('activity_type')->toString(),
+        ];
+        $pdf = app(\App\Services\PdfReportService::class)->render('attendances', $rows, $filters);
+
+        return response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="laporan-daftar-hadir-'.now()->format('Ymd-His').'.pdf"',
+        ]);
+    }
+
+    public function exportExcel(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $rows = $this->buildQuery($request)->get();
+        $filters = [
+            'q' => $request->string('q')->toString(),
+            'branch' => $request->string('branch')->toString(),
+            'activity_type' => $request->string('activity_type')->toString(),
+        ];
+
+        return app(\App\Services\ExcelReportService::class)->stream('attendances', $rows, $filters);
+    }
+
+    private function buildQuery(Request $request)
+    {
         $query = MeetingAttendance::query()->with('user')->latest();
 
         if ($request->filled('q')) {
@@ -39,14 +79,7 @@ class MeetingAttendanceController extends Controller
             $query->where('user_id', $request->user()->id);
         }
 
-        return view('attendances.index', [
-            'attendances' => $query->paginate(15)->withQueryString(),
-            'search' => $request->string('q')->toString(),
-            'selectedBranch' => $request->string('branch')->toString(),
-            'selectedActivity' => $request->string('activity_type')->toString(),
-            'branchOptions' => MeetingAttendance::branchOptions(),
-            'activityOptions' => MeetingAttendance::activityTypeOptions(),
-        ]);
+        return $query;
     }
 
     public function create(): View

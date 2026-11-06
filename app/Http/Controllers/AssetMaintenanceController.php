@@ -13,6 +13,34 @@ class AssetMaintenanceController extends Controller
 {
     public function index(Request $request): View
     {
+        return view('maintenances.index', [
+            'maintenances' => $this->buildQuery($request)->paginate(12)->withQueryString(),
+            'search' => $request->string('q')->toString(),
+        ]);
+    }
+
+    public function exportPdf(Request $request): \Symfony\Component\HttpFoundation\Response
+    {
+        $rows = $this->buildQuery($request)->get();
+        $filters = ['q' => $request->string('q')->toString()];
+        $pdf = app(\App\Services\PdfReportService::class)->render('maintenances', $rows, $filters);
+
+        return response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="laporan-service-'.now()->format('Ymd-His').'.pdf"',
+        ]);
+    }
+
+    public function exportExcel(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $rows = $this->buildQuery($request)->get();
+        $filters = ['q' => $request->string('q')->toString()];
+
+        return app(\App\Services\ExcelReportService::class)->stream('maintenances', $rows, $filters);
+    }
+
+    private function buildQuery(Request $request)
+    {
         $query = AssetMaintenance::query()->with(['user', 'asset'])->latest();
 
         if ($request->filled('q')) {
@@ -30,10 +58,7 @@ class AssetMaintenanceController extends Controller
             $query->where('user_id', $request->user()->id);
         }
 
-        return view('maintenances.index', [
-            'maintenances' => $query->paginate(12)->withQueryString(),
-            'search' => $request->string('q')->toString(),
-        ]);
+        return $query;
     }
 
     public function create(Request $request): View

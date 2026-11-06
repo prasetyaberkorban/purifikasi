@@ -13,6 +13,42 @@ class EmployeeLeaveController extends Controller
 {
     public function index(Request $request): View
     {
+        return view('leaves.index', [
+            'leaves' => $this->buildQuery($request)->paginate(12)->withQueryString(),
+            'search' => $request->string('q')->toString(),
+            'selectedType' => $request->string('type')->toString(),
+            'leaveTypes' => EmployeeLeave::leaveTypeOptions(),
+        ]);
+    }
+
+    public function exportPdf(Request $request): \Symfony\Component\HttpFoundation\Response
+    {
+        $rows = $this->buildQuery($request)->get();
+        $filters = [
+            'q' => $request->string('q')->toString(),
+            'type' => $request->string('type')->toString(),
+        ];
+        $pdf = app(\App\Services\PdfReportService::class)->render('leaves', $rows, $filters);
+
+        return response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="laporan-izin-cuti-'.now()->format('Ymd-His').'.pdf"',
+        ]);
+    }
+
+    public function exportExcel(Request $request): StreamedResponse
+    {
+        $rows = $this->buildQuery($request)->get();
+        $filters = [
+            'q' => $request->string('q')->toString(),
+            'type' => $request->string('type')->toString(),
+        ];
+
+        return app(\App\Services\ExcelReportService::class)->stream('leaves', $rows, $filters);
+    }
+
+    private function buildQuery(Request $request)
+    {
         $query = EmployeeLeave::query()->with('user')->latest();
 
         if ($request->filled('q')) {
@@ -33,12 +69,7 @@ class EmployeeLeaveController extends Controller
             $query->where('user_id', $request->user()->id);
         }
 
-        return view('leaves.index', [
-            'leaves' => $query->paginate(12)->withQueryString(),
-            'search' => $request->string('q')->toString(),
-            'selectedType' => $request->string('type')->toString(),
-            'leaveTypes' => EmployeeLeave::leaveTypeOptions(),
-        ]);
+        return $query;
     }
 
     public function create(): View

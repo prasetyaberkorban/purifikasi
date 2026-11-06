@@ -77,7 +77,5 @@
         <strong>Total:</strong> {{ $rows->count() }} transaksi &middot;
         {{ number_format($totals['loans'], 0, ',', '.') }} unit masih dipinjam
     </div>
-
-    <div class="footer">SGI - Sistem Inventaris Kantor Purifikasi</div>
 </body>
 </html>

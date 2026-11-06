@@ -20,10 +20,18 @@
                 </select>
             </form>
 
-            <a href="{{ route('leaves.create') }}" class="btn-primary inline-flex items-center gap-2 self-start">
-                <x-ui-icon name="plus" class="h-4 w-4" />
-                <span>Ajukan Izin / Cuti / WFA</span>
-            </a>
+            <div class="flex flex-wrap items-center gap-2">
+                <a href="{{ route('leaves.export.pdf', request()->query()) }}" class="btn-ghost text-xs">
+                    <x-ui-icon name="download" class="h-3.5 w-3.5" /> PDF
+                </a>
+                <a href="{{ route('leaves.export.excel', request()->query()) }}" class="btn-ghost text-xs">
+                    <x-ui-icon name="download" class="h-3.5 w-3.5" /> Excel
+                </a>
+                <a href="{{ route('leaves.create') }}" class="btn-primary inline-flex items-center gap-2 self-start text-xs">
+                    <x-ui-icon name="plus" class="h-4 w-4" />
+                    <span>Ajukan Izin / Cuti / WFA</span>
+                </a>
+            </div>
         </div>
 
         {{-- Tabel Data --}}

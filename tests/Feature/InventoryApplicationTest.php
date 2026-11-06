@@ -491,4 +491,29 @@ class InventoryApplicationTest extends TestCase
             return $loanRows->count() >= 0;
         });
     }
+
+    public function test_module_exports_pdf_and_excel(): void
+    {
+        $user = $this->user();
+
+        // Service
+        $this->actingAs($user)->get(route('services.export.pdf'))->assertOk()->assertHeader('Content-Type', 'application/pdf');
+        $this->actingAs($user)->get(route('services.export.excel'))->assertOk();
+
+        // Pengadaan
+        $this->actingAs($user)->get(route('procurements.export.pdf'))->assertOk()->assertHeader('Content-Type', 'application/pdf');
+        $this->actingAs($user)->get(route('procurements.export.excel'))->assertOk();
+
+        // Izin/Cuti
+        $this->actingAs($user)->get(route('leaves.export.pdf'))->assertOk()->assertHeader('Content-Type', 'application/pdf');
+        $this->actingAs($user)->get(route('leaves.export.excel'))->assertOk();
+
+        // Peminjaman Kendaraan
+        $this->actingAs($user)->get(route('vehicle-loans.export.pdf'))->assertOk()->assertHeader('Content-Type', 'application/pdf');
+        $this->actingAs($user)->get(route('vehicle-loans.export.excel'))->assertOk();
+
+        // Daftar Hadir
+        $this->actingAs($user)->get(route('attendances.export.pdf'))->assertOk()->assertHeader('Content-Type', 'application/pdf');
+        $this->actingAs($user)->get(route('attendances.export.excel'))->assertOk();
+    }
 }
