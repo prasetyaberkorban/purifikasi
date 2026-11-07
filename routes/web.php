@@ -15,12 +15,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
 
-// TEMPORARY — delete after migration runs
-Route::get('/_mig_puri9x2k', function () {
-    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-    return '<pre style="font-family:monospace;padding:20px">' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
-});
-
 Route::middleware('guest')->group(function () {
     Route::get('masuk', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('masuk', [AuthenticatedSessionController::class, 'store'])->name('login.attempt');
