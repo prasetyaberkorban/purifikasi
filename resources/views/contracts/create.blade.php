@@ -59,24 +59,74 @@
                 </div>
             </div>
 
-            {{-- 2. Proyek / Kegiatan (Dropdown / Ketik Proyek Baru) & Nama Pihak Kedua --}}
+            {{-- 2. Proyek / Kegiatan (Dropdown Modern & Pilihan Proyek Tersimpan) & Nama Pihak Kedua --}}
             <div class="grid gap-4 sm:grid-cols-2">
-                <div>
+                <div class="relative" x-data="{ openProject: false }" @click.outside="openProject = false">
                     <label for="project_name" class="label">
                         4. Proyek / Kegiatan <span class="text-red-500">*</span>
                     </label>
-                    <input id="project_name" type="text" name="project_name"
-                           list="project_list"
-                           x-model="projectName"
-                           @input="saveProject($event.target.value)"
-                           placeholder="Pilih proyek yang ada atau ketik proyek baru..."
-                           required
-                           class="field @error('project_name') border-red-500 ring-1 ring-red-500 @enderror">
-                    <datalist id="project_list">
-                        @foreach ($existingProjects as $project)
-                            <option value="{{ $project }}"></option>
-                        @endforeach
-                    </datalist>
+                    <div class="relative mt-1">
+                        <input id="project_name" type="text" name="project_name"
+                               x-model="projectName"
+                               @focus="openProject = true"
+                               @input="openProject = true; saveProject($event.target.value)"
+                               placeholder="Pilih dari daftar atau ketik proyek baru..."
+                               autocomplete="off"
+                               required
+                               class="field pr-10 @error('project_name') border-red-500 ring-1 ring-red-500 @enderror">
+                        <button type="button"
+                                @click="openProject = !openProject"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-ink-soft hover:text-forest transition rounded-md"
+                                title="Buka pilihan proyek"
+                                aria-label="Buka pilihan proyek">
+                            <svg class="h-4 w-4 transition-transform duration-200" :class="openProject ? 'rotate-180 text-forest' : ''" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    {{-- Modern Floating Dropdown Menu --}}
+                    <div x-show="openProject"
+                         x-cloak
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 translate-y-1 scale-98"
+                         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                         x-transition:leave="transition ease-in duration-100"
+                         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                         x-transition:leave-end="opacity-0 translate-y-1 scale-98"
+                         class="absolute z-50 left-0 right-0 mt-1 max-h-60 overflow-y-auto rounded-xl border border-line bg-white shadow-xl py-1 text-xs">
+                        
+                        <div class="px-3 py-1.5 text-[0.68rem] font-bold uppercase tracking-wider text-ink-soft bg-canvas/75 border-b border-line flex items-center justify-between">
+                            <span>Pilihan Proyek Tersimpan</span>
+                            <span class="text-[0.65rem] text-forest font-semibold">{{ count($existingProjects) }} Proyek</span>
+                        </div>
+
+                        @if (count($existingProjects) > 0)
+                            <div class="py-1 divide-y divide-line/40">
+                                @foreach ($existingProjects as $project)
+                                    <button type="button"
+                                            @click="projectName = '{{ addslashes($project) }}'; saveProject('{{ addslashes($project) }}'); openProject = false"
+                                            class="w-full px-3 py-2 text-left flex items-center justify-between transition hover:bg-[#f0f7f2] group"
+                                            :class="projectName === '{{ addslashes($project) }}' ? 'bg-[#eaf4ee] text-forest font-bold' : 'text-ink'">
+                                        <span class="flex items-center gap-2">
+                                            <span class="h-2 w-2 rounded-full" :class="projectName === '{{ addslashes($project) }}' ? 'bg-forest' : 'bg-slate-300 group-hover:bg-leaf'"></span>
+                                            <span>{{ $project }}</span>
+                                        </span>
+                                        <span x-show="projectName === '{{ addslashes($project) }}'" class="text-forest">
+                                            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                                            </svg>
+                                        </span>
+                                    </button>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="p-3 text-center text-ink-soft italic text-[0.72rem]">
+                                Belum ada data proyek sebelumnya. Ketik nama proyek baru di atas.
+                            </div>
+                        @endif
+                    </div>
+
                     @error('project_name')
                         <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                     @enderror
