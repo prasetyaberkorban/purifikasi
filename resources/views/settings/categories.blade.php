@@ -35,7 +35,9 @@
                                         <button type="button" class="rounded-lg p-2 text-ink-soft hover:bg-canvas hover:text-forest" @click="edit = !edit" aria-label="Ubah {{ $category->name }}">
                                             <x-ui-icon name="pencil" class="h-4 w-4" />
                                         </button>
-                                        <form method="POST" action="{{ route('categories.destroy', $category) }}" onsubmit="return confirm('Hapus kategori {{ $category->name }}?')">
+                                        <form method="POST" action="{{ route('categories.destroy', $category) }}"
+                                              data-confirm-title="Hapus Kategori?"
+                                              data-confirm-delete="Apakah Anda yakin ingin menghapus kategori {{ $category->name }}? Data yang dihapus tidak dapat dipulihkan.">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="rounded-lg p-2 text-ink-soft hover:bg-red-50 hover:text-red-600" aria-label="Hapus {{ $category->name }}">

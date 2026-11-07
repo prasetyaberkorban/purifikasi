@@ -33,7 +33,9 @@
                                     <x-ui-icon name="pencil" class="h-4 w-4" />
                                 </button>
                                 @unless ($user->is(auth()->user()))
-                                    <form method="POST" action="{{ route('users.destroy', $user) }}" onsubmit="return confirm('Hapus pengguna {{ $user->name }}?')">
+                                    <form method="POST" action="{{ route('users.destroy', $user) }}"
+                                          data-confirm-title="Hapus Pengguna?"
+                                          data-confirm-delete="Apakah Anda yakin ingin menghapus akun pengguna {{ $user->name }}? Data yang dihapus tidak dapat dipulihkan.">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="rounded-lg p-2 text-ink-soft hover:bg-red-50 hover:text-red-600" aria-label="Hapus {{ $user->name }}">

@@ -28,7 +28,9 @@
                                 <button type="button" class="rounded-lg p-2 text-ink-soft hover:bg-canvas hover:text-forest" @click="edit = !edit" aria-label="Ubah {{ $location->name }}">
                                     <x-ui-icon name="pencil" class="h-4 w-4" />
                                 </button>
-                                <form method="POST" action="{{ route('locations.destroy', $location) }}" onsubmit="return confirm('Hapus lokasi {{ $location->name }}?')">
+                                <form method="POST" action="{{ route('locations.destroy', $location) }}"
+                                      data-confirm-title="Hapus Lokasi?"
+                                      data-confirm-delete="Apakah Anda yakin ingin menghapus lokasi {{ $location->name }}? Data yang dihapus tidak dapat dipulihkan.">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="rounded-lg p-2 text-ink-soft hover:bg-red-50 hover:text-red-600" aria-label="Hapus {{ $location->name }}">

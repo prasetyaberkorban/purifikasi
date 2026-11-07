@@ -138,7 +138,8 @@
                                     @endcan
                                     @can('delete', $asset)
                                         <form method="POST" action="{{ route('assets.destroy', $asset) }}"
-                                              onsubmit="return confirm('Apakah Anda yakin ingin menghapus aset {{ $asset->name }} ({{ $asset->code }}) dari inventaris?');"
+                                              data-confirm-title="Hapus Aset?"
+                                              data-confirm-delete="Apakah Anda yakin ingin menghapus aset {{ $asset->name }} ({{ $asset->code }}) dari inventaris? Data yang dihapus tidak dapat dipulihkan."
                                               class="inline">
                                             @csrf
                                             @method('DELETE')

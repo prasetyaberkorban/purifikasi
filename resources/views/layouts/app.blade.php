@@ -158,6 +158,8 @@
         </footer>
     </div>
 
+    <x-delete-modal />
+
     @livewireScripts
 </body>
 </html>
