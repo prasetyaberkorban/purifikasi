@@ -32,9 +32,16 @@ class ProjectContractController extends Controller
     public function create(Request $request): View
     {
         $stickyProject = old('project_name', session('last_project_name', ''));
+        $existingProjects = ProjectContract::query()
+            ->whereNotNull('project_name')
+            ->where('project_name', '!=', '')
+            ->distinct()
+            ->orderBy('project_name')
+            ->pluck('project_name');
 
         return view('contracts.create', [
             'stickyProject' => $stickyProject,
+            'existingProjects' => $existingProjects,
         ]);
     }
 
@@ -110,8 +117,16 @@ class ProjectContractController extends Controller
 
     public function edit(ProjectContract $contract): View
     {
+        $existingProjects = ProjectContract::query()
+            ->whereNotNull('project_name')
+            ->where('project_name', '!=', '')
+            ->distinct()
+            ->orderBy('project_name')
+            ->pluck('project_name');
+
         return view('contracts.edit', [
             'contract' => $contract,
+            'existingProjects' => $existingProjects,
         ]);
     }
 

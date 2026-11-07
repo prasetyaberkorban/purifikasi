@@ -139,7 +139,7 @@ class AppLayout extends Component
             ],
             [
                 'key' => 'contracts',
-                'label' => 'REKAPITULASI KONTRAK / SPK',
+                'label' => 'Rekapitulasi Kontrak / SPK',
                 'icon' => 'clipboard-check',
                 'children' => [
                     ['label' => 'Formulir Kontrak / SPK', 'route' => route('contracts.create'), 'active' => ['contracts.create']],

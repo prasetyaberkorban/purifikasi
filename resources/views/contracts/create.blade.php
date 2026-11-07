@@ -28,17 +28,6 @@
              }
          }">
 
-        {{-- Sticky Notice Box --}}
-        <div class="rounded-2xl border border-leaf/30 bg-leaf-50/70 p-4 text-xs text-forest flex items-start gap-3">
-            <x-ui-icon name="check" class="h-5 w-5 shrink-0 text-leaf mt-0.5" />
-            <div>
-                <p class="font-bold text-sm">Alur Input Proyek (Sticky Auto-fill Aktif)</p>
-                <p class="mt-0.5 text-ink-soft leading-relaxed">
-                    Field <strong>Proyek / Kegiatan</strong> akan otomatis disimpan dan diisikan kembali untuk input kontrak berikutnya pada proyek yang sama. Anda dapat mengubahnya sewaktu-waktu.
-                </p>
-            </div>
-        </div>
-
         <form method="POST" action="{{ route('contracts.store') }}" enctype="multipart/form-data" class="card p-5 sm:p-6 space-y-6">
             @csrf
 
@@ -70,23 +59,24 @@
                 </div>
             </div>
 
-            {{-- 2. Proyek / Kegiatan (Sticky Input) & Nama Pihak Kedua --}}
+            {{-- 2. Proyek / Kegiatan (Dropdown / Ketik Proyek Baru) & Nama Pihak Kedua --}}
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
-                    <div class="flex items-center justify-between">
-                        <label for="project_name" class="label">
-                            4. Proyek / Kegiatan <span class="text-red-500">*</span>
-                        </label>
-                        <span class="text-[0.68rem] font-semibold text-leaf bg-leaf-50 px-2 py-0.5 rounded-full border border-leaf/20">
-                            Auto-remembered
-                        </span>
-                    </div>
+                    <label for="project_name" class="label">
+                        4. Proyek / Kegiatan <span class="text-red-500">*</span>
+                    </label>
                     <input id="project_name" type="text" name="project_name"
+                           list="project_list"
                            x-model="projectName"
                            @input="saveProject($event.target.value)"
-                           placeholder="Contoh: Proyek WTP Kawasan Industri Candi"
+                           placeholder="Pilih proyek yang ada atau ketik proyek baru..."
                            required
                            class="field @error('project_name') border-red-500 ring-1 ring-red-500 @enderror">
+                    <datalist id="project_list">
+                        @foreach ($existingProjects as $project)
+                            <option value="{{ $project }}"></option>
+                        @endforeach
+                    </datalist>
                     @error('project_name')
                         <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                     @enderror
@@ -247,14 +237,11 @@
                           class="field">{{ old('contract_notes') }}</textarea>
             </div>
 
-            {{-- 8. Dokumen Sumber (Dual Input: Teks Link DAN File Upload Lampiran) --}}
+            {{-- 8. Dokumen Sumber --}}
             <div class="rounded-xl border border-line bg-canvas/40 p-4 space-y-3">
                 <label class="label block font-bold text-ink">
-                    16. Dokumen Sumber (Link Teks &amp; File Fisik)
+                    16. Dokumen Sumber
                 </label>
-                <p class="text-xs text-ink-soft">
-                    Sediakan tautan/keterangan tulisan <strong>DAN/ATAU</strong> unggah lampiran file fisik (PDF, DOCX, JPG, PNG).
-                </p>
 
                 {{-- Teks Input --}}
                 <div>
@@ -270,7 +257,7 @@
                 {{-- File Upload --}}
                 <div>
                     <label for="source_document_file" class="text-[0.72rem] font-semibold text-ink-soft">
-                        Unggah File Lampiran (PDF / DOCX / Gambar, Maks. 20MB)
+                        Unggah File Lampiran (Opsional, PDF / DOCX / Gambar, Maks. 20MB)
                     </label>
                     <input id="source_document_file" type="file" name="source_document_file"
                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"

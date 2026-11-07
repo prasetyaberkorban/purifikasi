@@ -66,10 +66,17 @@
                         4. Proyek / Kegiatan <span class="text-red-500">*</span>
                     </label>
                     <input id="project_name" type="text" name="project_name"
+                           list="project_list"
                            x-model="projectName"
                            @input="saveProject($event.target.value)"
+                           placeholder="Pilih proyek yang ada atau ketik proyek baru..."
                            required
                            class="field @error('project_name') border-red-500 ring-1 ring-red-500 @enderror">
+                    <datalist id="project_list">
+                        @foreach ($existingProjects as $project)
+                            <option value="{{ $project }}"></option>
+                        @endforeach
+                    </datalist>
                     @error('project_name')
                         <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                     @enderror
@@ -220,10 +227,10 @@
                           class="field">{{ old('contract_notes', $contract->contract_notes) }}</textarea>
             </div>
 
-            {{-- 8. Dokumen Sumber (Dual Input: Teks Link DAN File Upload Lampiran) --}}
+            {{-- 8. Dokumen Sumber --}}
             <div class="rounded-xl border border-line bg-canvas/40 p-4 space-y-3">
                 <label class="label block font-bold text-ink">
-                    16. Dokumen Sumber (Link Teks &amp; File Fisik)
+                    16. Dokumen Sumber
                 </label>
 
                 {{-- Teks Input --}}
@@ -240,7 +247,7 @@
                 {{-- File Upload --}}
                 <div>
                     <label for="source_document_file" class="text-[0.72rem] font-semibold text-ink-soft">
-                        Unggah File Lampiran Baru (PDF / DOCX / Gambar, Maks. 20MB)
+                        Unggah File Lampiran Baru (Opsional, PDF / DOCX / Gambar, Maks. 20MB)
                     </label>
                     @if ($contract->source_document_path)
                         <div class="mb-2 flex items-center gap-2 text-xs">
