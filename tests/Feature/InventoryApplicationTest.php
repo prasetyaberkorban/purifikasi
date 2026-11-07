@@ -515,5 +515,67 @@ class InventoryApplicationTest extends TestCase
         // Daftar Hadir
         $this->actingAs($user)->get(route('attendances.export.pdf'))->assertOk()->assertHeader('Content-Type', 'application/pdf');
         $this->actingAs($user)->get(route('attendances.export.excel'))->assertOk();
+
+        // Kontrak / SPK
+        $this->actingAs($user)->get(route('contracts.export.pdf'))->assertOk()->assertHeader('Content-Type', 'application/pdf');
+        $this->actingAs($user)->get(route('contracts.export.excel'))->assertOk();
+    }
+
+    public function test_can_manage_project_contracts_with_sticky_project(): void
+    {
+        $user = $this->user();
+
+        // 1. Visit create page
+        $res = $this->actingAs($user)->get(route('contracts.create'));
+        $res->assertOk();
+
+        // 2. Submit contract
+        $file = \Illuminate\Http\UploadedFile::fake()->create('spk_document.pdf', 500, 'application/pdf');
+        $storeRes = $this->actingAs($user)->post(route('contracts.store'), [
+            'spk_number' => '001/SPK/TEST/2026',
+            'spk_date' => '2026-11-07',
+            'project_name' => 'Proyek WTP Semarang',
+            'second_party_name' => 'PT. Mitra Mandiri',
+            'job_description' => 'Pemasangan instalasi pipa WTP',
+            'contract_value' => '25.000.000',
+            'duration_months' => 3,
+            'termin_1' => 30,
+            'termin_2' => 30,
+            'termin_3' => 40,
+            'bank_name' => 'BCA',
+            'bank_account_number' => '1234567890',
+            'bank_account_holder' => 'PT. Mitra Mandiri',
+            'contract_notes' => 'Catatan tes kontrak',
+            'source_document_text' => 'https://drive.google.com/test',
+            'source_document_file' => $file,
+        ]);
+
+        $storeRes->assertRedirect(route('contracts.index'));
+        $this->assertDatabaseHas('project_contracts', [
+            'spk_number' => '001/SPK/TEST/2026',
+            'project_name' => 'Proyek WTP Semarang',
+            'contract_value' => 25000000,
+        ]);
+
+        // 3. Verify session has sticky project name
+        $this->assertEquals('Proyek WTP Semarang', session('last_project_name'));
+
+        // 4. Visit create page again, should have sticky project prefilled
+        $res2 = $this->actingAs($user)->get(route('contracts.create'));
+        $res2->assertOk();
+        $res2->assertSee('Proyek WTP Semarang');
+
+        // 5. Index page lists the contract and contains no dropdown <select>
+        $indexRes = $this->actingAs($user)->get(route('contracts.index'));
+        $indexRes->assertOk();
+        $indexRes->assertSee('001/SPK/TEST/2026');
+        $indexRes->assertSee('Rp 25.000.000');
+        $indexRes->assertDontSee('<select');
+
+        // 6. Delete contract
+        $contract = \App\Models\ProjectContract::query()->where('spk_number', '001/SPK/TEST/2026')->firstOrFail();
+        $delRes = $this->actingAs($user)->delete(route('contracts.destroy', $contract));
+        $delRes->assertRedirect(route('contracts.index'));
+        $this->assertDatabaseMissing('project_contracts', ['id' => $contract->id]);
     }
 }

@@ -115,6 +115,18 @@ Route::middleware(['auth', 'role'])->group(function () {
     Route::get('penilaian-fatik', [\App\Http\Controllers\FatigueAssessmentController::class, 'index'])->name('fatigue.index');
     Route::get('penilaian-fatik/{fatigue}', [\App\Http\Controllers\FatigueAssessmentController::class, 'show'])->name('fatigue.show');
 
+    // Rekapitulasi Kontrak / SPK
+    Route::get('kontrak/formulir', [\App\Http\Controllers\ProjectContractController::class, 'create'])->name('contracts.create');
+    Route::post('kontrak', [\App\Http\Controllers\ProjectContractController::class, 'store'])->name('contracts.store');
+    Route::get('kontrak', [\App\Http\Controllers\ProjectContractController::class, 'index'])->name('contracts.index');
+    Route::get('kontrak/ekspor/pdf', [\App\Http\Controllers\ProjectContractController::class, 'exportPdf'])->name('contracts.export.pdf');
+    Route::get('kontrak/ekspor/excel', [\App\Http\Controllers\ProjectContractController::class, 'exportExcel'])->name('contracts.export.excel');
+    Route::get('kontrak/{contract}', [\App\Http\Controllers\ProjectContractController::class, 'show'])->name('contracts.show');
+    Route::get('kontrak/{contract}/ubah', [\App\Http\Controllers\ProjectContractController::class, 'edit'])->name('contracts.edit');
+    Route::put('kontrak/{contract}', [\App\Http\Controllers\ProjectContractController::class, 'update'])->name('contracts.update');
+    Route::delete('kontrak/{contract}', [\App\Http\Controllers\ProjectContractController::class, 'destroy'])->name('contracts.destroy');
+    Route::get('kontrak/{contract}/unduh', [\App\Http\Controllers\ProjectContractController::class, 'download'])->name('contracts.download');
+
     // Laporan
     Route::get('laporan', [ReportController::class, 'index'])->middleware('role:admin')->name('reports.index');
     Route::get('laporan/ekspor/{type}/pdf', [ReportController::class, 'exportPdf'])->middleware('role:admin')->name('reports.pdf');

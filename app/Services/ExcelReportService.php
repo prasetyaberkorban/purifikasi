@@ -27,6 +27,7 @@ class ExcelReportService
             'leaves' => $this->leavesSheet($rows, $filters),
             'vehicle-loans' => $this->vehicleLoansSheet($rows, $filters),
             'attendances' => $this->attendancesSheet($rows, $filters),
+            'contracts' => $this->contractsSheet($rows, $filters),
             default => $this->assetsSheet($rows, $filters),
         };
 
@@ -285,6 +286,72 @@ class ExcelReportService
         }
 
         $this->styleBody($sheet, 4, $rowNumber - 1, count($headers));
+        $sheet->freezePane('A4');
+
+        return $spreadsheet;
+    }
+
+    /** @param  Collection<int, \App\Models\ProjectContract>  $rows */
+    private function contractsSheet(Collection $rows, array $filters): Spreadsheet
+    {
+        $spreadsheet = new Spreadsheet;
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Rekap Kontrak SPK');
+
+        $headers = [
+            'No',
+            'No. SPK / PO',
+            'Tanggal SPK',
+            'Proyek / Kegiatan',
+            'Nama Pihak Kedua',
+            'Jabatan / Uraian Pekerjaan',
+            'Nilai Kontrak (Rp)',
+            'Durasi (Bulan)',
+            'Termin I (%)',
+            'Termin II (%)',
+            'Termin III (%)',
+            'Bank',
+            'Nomor Rekening',
+            'Atas Nama Rekening',
+            'Dokumen Sumber (Teks)',
+            'File Lampiran',
+            'Catatan Kontrak',
+        ];
+
+        $this->writeHeader($sheet, 'REKAPITULASI KONTRAK / SPK', $headers);
+        $this->writeFilters($sheet, count($headers), $filters, [
+            'q' => 'Pencarian',
+            'bank' => 'Bank',
+            'from' => 'Dari Tanggal',
+            'to' => 'Sampai Tanggal',
+        ]);
+
+        $rowNumber = 4;
+        foreach ($rows as $index => $item) {
+            $sheet->fromArray([
+                $index + 1,
+                $item->spk_number,
+                $item->spk_date?->format('d/m/Y'),
+                $item->project_name,
+                $item->second_party_name,
+                $item->job_description,
+                (float) $item->contract_value,
+                $item->duration_months,
+                $item->termin_1 > 0 ? $item->termin_1.'%' : '0%',
+                $item->termin_2 > 0 ? $item->termin_2.'%' : '0%',
+                $item->termin_3 > 0 ? $item->termin_3.'%' : '0%',
+                $item->bank_name,
+                ' '.$item->bank_account_number,
+                $item->bank_account_holder,
+                $item->source_document_text ?: '-',
+                $item->source_document_name ?: '-',
+                $item->contract_notes ?: '-',
+            ], null, 'A'.$rowNumber);
+            $rowNumber++;
+        }
+
+        $this->styleBody($sheet, 4, $rowNumber - 1, count($headers));
+        $sheet->getStyle('G4:G'.max(4, $rowNumber - 1))->getNumberFormat()->setFormatCode('#,##0');
         $sheet->freezePane('A4');
 
         return $spreadsheet;

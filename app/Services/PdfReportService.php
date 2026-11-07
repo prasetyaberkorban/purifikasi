@@ -23,6 +23,7 @@ class PdfReportService
             'leaves' => 'reports.pdf.leaves',
             'vehicle-loans' => 'reports.pdf.vehicle-loans',
             'attendances' => 'reports.pdf.attendances',
+            'contracts' => 'reports.pdf.contracts',
         ];
 
         $view = $viewMap[$type] ?? 'reports.pdf.assets';

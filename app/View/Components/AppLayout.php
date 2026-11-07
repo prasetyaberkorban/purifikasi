@@ -138,6 +138,16 @@ class AppLayout extends Component
                 'external' => true,
             ],
             [
+                'key' => 'contracts',
+                'label' => 'REKAPITULASI KONTRAK / SPK',
+                'icon' => 'clipboard-check',
+                'children' => [
+                    ['label' => 'Formulir Kontrak / SPK', 'route' => route('contracts.create'), 'active' => ['contracts.create']],
+                    ['label' => 'Rekapitulasi Kontrak', 'route' => route('contracts.index'), 'active' => ['contracts.index', 'contracts.show', 'contracts.edit']],
+                ],
+                'active' => ['contracts.*'],
+            ],
+            [
                 'key' => 'reports',
                 'label' => 'Laporan',
                 'icon' => 'chart',
