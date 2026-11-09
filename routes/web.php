@@ -33,6 +33,11 @@ Route::middleware(['auth', 'role'])->group(function () {
 
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
+    // Aktivitas Terbaru
+    Route::delete('aktivitas/bulk-delete', [\App\Http\Controllers\ActivityController::class, 'bulkDestroy'])->middleware('role:admin')->name('activities.bulk-destroy');
+    Route::get('aktivitas', [\App\Http\Controllers\ActivityController::class, 'index'])->name('activities.index');
+    Route::delete('aktivitas/{activity}', [\App\Http\Controllers\ActivityController::class, 'destroy'])->middleware('role:admin')->name('activities.destroy');
+
     // Aset & Barang
     Route::delete('aset/bulk-delete', [AssetController::class, 'bulkDestroy'])->middleware('role:admin')->name('assets.bulk-destroy');
     Route::get('aset', [AssetController::class, 'index'])->name('assets.index');

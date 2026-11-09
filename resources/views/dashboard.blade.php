@@ -8,7 +8,8 @@
                      hint="Unit sedang di luar kantor" icon="swap" tone="sky"
                      :href="route('loans.active')" />
         <x-stat-card label="Aktivitas Terbaru" :value="$summary['activity_today']"
-                     hint="Pencatatan hari ini" icon="clock" tone="leaf" />
+                     hint="Pencatatan hari ini" icon="clock" tone="leaf"
+                     :href="route('activities.index')" />
     </section>
 
     {{-- Grafik 1: Unit Aset per Kategori (1 Baris Memanjang Penuh) --}}
@@ -132,8 +133,9 @@
 
             {{-- Aktivitas --}}
             <div class="card overflow-hidden">
-                <div class="border-b border-line px-4 py-4">
+                <div class="flex items-center justify-between border-b border-line px-4 py-4">
                     <h2 class="text-sm font-bold text-ink">Aktivitas Terbaru</h2>
+                    <a href="{{ route('activities.index') }}" class="text-xs font-semibold text-leaf hover:underline">Lihat Semua</a>
                 </div>
                 <ol class="divide-y divide-line">
                     @forelse ($activities as $activity)

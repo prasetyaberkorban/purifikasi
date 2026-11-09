@@ -158,6 +158,13 @@ class AppLayout extends Component
                 'active' => ['contracts.*'],
             ],
             [
+                'key' => 'activities',
+                'label' => 'Log Aktivitas',
+                'icon' => 'clock',
+                'route' => route('activities.index'),
+                'active' => ['activities.*'],
+            ],
+            [
                 'key' => 'reports',
                 'label' => 'Laporan',
                 'icon' => 'chart',
