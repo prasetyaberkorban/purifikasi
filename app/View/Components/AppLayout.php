@@ -142,8 +142,18 @@ class AppLayout extends Component
                 'label' => 'Rekapitulasi Kontrak / SPK',
                 'icon' => 'clipboard-check',
                 'children' => [
-                    ['label' => 'Formulir Kontrak / SPK', 'route' => route('contracts.create'), 'active' => ['contracts.create']],
-                    ['label' => 'Rekapitulasi Kontrak', 'route' => route('contracts.index'), 'active' => ['contracts.index', 'contracts.show', 'contracts.edit']],
+                    [
+                        'label' => 'AMDAL',
+                        'route' => route('contracts.index', ['category' => 'amdal']),
+                        'active' => ['contracts.amdal'],
+                        'is_active' => request()->routeIs('contracts.amdal') || (request()->routeIs('contracts.*') && request('category', 'amdal') === 'amdal'),
+                    ],
+                    [
+                        'label' => 'Engineering',
+                        'route' => route('contracts.index', ['category' => 'engineering']),
+                        'active' => ['contracts.engineering'],
+                        'is_active' => request()->routeIs('contracts.engineering') || (request()->routeIs('contracts.*') && request('category') === 'engineering'),
+                    ],
                 ],
                 'active' => ['contracts.*'],
             ],

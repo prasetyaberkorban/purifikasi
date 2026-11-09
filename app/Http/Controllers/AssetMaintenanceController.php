@@ -130,6 +130,10 @@ class AssetMaintenanceController extends Controller
 
     public function show(AssetMaintenance $maintenance): View
     {
+        if (! auth()->user()->isAdmin() && $maintenance->user_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki hak akses untuk riwayat service ini.');
+        }
+
         $maintenance->load(['user', 'asset']);
 
         return view('maintenances.show', [

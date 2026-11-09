@@ -2,27 +2,29 @@
     <div class="mx-auto max-w-4xl space-y-4">
         {{-- Header Bar --}}
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <a href="{{ route('contracts.index') }}" class="btn-ghost inline-flex items-center gap-2 self-start text-xs">
+            <a href="{{ route('contracts.index', ['category' => $contract->category ?? 'amdal']) }}" class="btn-ghost inline-flex items-center gap-2 self-start text-xs">
                 <x-ui-icon name="arrow-down-left" class="h-4 w-4" />
-                <span>Kembali ke Daftar Rekapitulasi</span>
+                <span>Kembali ke Rekapitulasi {{ $contract->isEngineering() ? 'Engineering' : 'AMDAL' }}</span>
             </a>
 
-            <div class="flex items-center gap-2">
-                <a href="{{ route('contracts.edit', $contract) }}" class="btn-primary inline-flex items-center gap-1.5 text-xs">
-                    <x-ui-icon name="pencil" class="h-4 w-4" />
-                    <span>Ubah Data</span>
-                </a>
+            @if (auth()->user()->isAdmin() || $contract->user_id === auth()->id())
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('contracts.edit', $contract) }}" class="btn-primary inline-flex items-center gap-1.5 text-xs">
+                        <x-ui-icon name="pencil" class="h-4 w-4" />
+                        <span>Ubah Data</span>
+                    </a>
 
-                <form method="POST" action="{{ route('contracts.destroy', $contract) }}"
-                      data-confirm-title="Hapus Kontrak / SPK?"
-                      data-confirm-delete="Apakah Anda yakin ingin menghapus data kontrak No. {{ $contract->spk_number }} ({{ $contract->project_name }})? Tindakan ini permanen.">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn-ghost text-red-600 hover:bg-red-50 text-xs">
-                        <x-ui-icon name="trash" class="h-4 w-4" /> Hapus
-                    </button>
-                </form>
-            </div>
+                    <form method="POST" action="{{ route('contracts.destroy', $contract) }}"
+                          data-confirm-title="Hapus Kontrak / SPK?"
+                          data-confirm-delete="Apakah Anda yakin ingin menghapus data kontrak No. {{ $contract->spk_number }} ({{ $contract->project_name }})? Tindakan ini permanen.">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn-ghost text-red-600 hover:bg-red-50 text-xs">
+                            <x-ui-icon name="trash" class="h-4 w-4" /> Hapus
+                        </button>
+                    </form>
+                </div>
+            @endif
         </div>
 
         {{-- Card Detail Kontrak --}}
@@ -31,9 +33,14 @@
             <div class="border-b border-line pb-5">
                 <div class="flex flex-wrap items-center justify-between gap-2">
                     <div>
-                        <span class="inline-flex items-center rounded-lg bg-leaf-50 px-2.5 py-1 text-xs font-bold text-forest border border-leaf/20">
-                            {{ $contract->project_name }}
-                        </span>
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center rounded-lg bg-forest text-white px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider">
+                                {{ $contract->categoryLabel() }}
+                            </span>
+                            <span class="inline-flex items-center rounded-lg bg-leaf-50 px-2.5 py-0.5 text-xs font-bold text-forest border border-leaf/20">
+                                {{ $contract->project_name }}
+                            </span>
+                        </div>
                         <h2 class="mt-2 text-xl font-bold text-ink">{{ $contract->spk_number }}</h2>
                         <p class="text-xs text-ink-soft">Tanggal SPK: <strong>{{ $contract->spk_date?->translatedFormat('d F Y') }}</strong></p>
                     </div>

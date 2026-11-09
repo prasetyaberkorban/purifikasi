@@ -163,6 +163,10 @@ class VehicleLoanController extends Controller
 
     public function show(VehicleLoan $vehicleLoan): View
     {
+        if (! auth()->user()->isAdmin() && $vehicleLoan->user_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki hak akses untuk riwayat peminjaman kendaraan ini.');
+        }
+
         $vehicleLoan->load('user');
 
         return view('vehicle-loans.show', [

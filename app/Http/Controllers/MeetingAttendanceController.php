@@ -153,6 +153,10 @@ class MeetingAttendanceController extends Controller
 
     public function show(MeetingAttendance $attendance): View
     {
+        if (! auth()->user()->isAdmin() && $attendance->user_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki hak akses untuk riwayat daftar hadir ini.');
+        }
+
         $attendance->load('user');
 
         return view('attendances.show', [

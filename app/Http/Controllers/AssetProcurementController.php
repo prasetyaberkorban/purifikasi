@@ -123,6 +123,10 @@ class AssetProcurementController extends Controller
 
     public function show(AssetProcurement $procurement): View
     {
+        if (! auth()->user()->isAdmin() && $procurement->user_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki hak akses untuk riwayat realisasi pengadaan ini.');
+        }
+
         $procurement->load('user');
 
         return view('procurements.show', [
@@ -132,6 +136,10 @@ class AssetProcurementController extends Controller
 
     public function download(AssetProcurement $procurement): StreamedResponse
     {
+        if (! auth()->user()->isAdmin() && $procurement->user_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki hak akses untuk bukti realisasi ini.');
+        }
+
         if (! Storage::disk('public')->exists($procurement->proof_file_path)) {
             abort(404, 'File bukti realisasi tidak ditemukan.');
         }

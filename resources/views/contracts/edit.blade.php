@@ -1,4 +1,4 @@
-<x-app-layout title="Ubah Rekapitulasi Kontrak / SPK" subtitle="Perbarui data surat perintah kerja dan kontrak kerja proyek" active="contracts">
+<x-app-layout :title="'Ubah Rekapitulasi Kontrak / SPK (' . ($contract->isEngineering() ? 'Engineering' : 'AMDAL') . ')'" subtitle="Perbarui data surat perintah kerja dan kontrak kerja proyek" active="contracts">
     <div class="mx-auto max-w-4xl space-y-4"
          x-data="{
              projectName: '{{ old('project_name', $contract->project_name) }}',
@@ -31,6 +31,28 @@
         <form method="POST" action="{{ route('contracts.update', $contract) }}" enctype="multipart/form-data" class="card p-5 sm:p-6 space-y-6">
             @csrf
             @method('PUT')
+
+            {{-- 1. Divisi / Kategori Rekapitulasi Kontrak --}}
+            <div>
+                <label class="label">
+                    1. Kategori / Divisi Kontrak <span class="text-red-500">*</span>
+                </label>
+                <div class="mt-1 flex items-center gap-3">
+                    <label class="inline-flex items-center gap-2 rounded-xl border border-line px-4 py-2.5 text-xs font-bold cursor-pointer transition has-checked:bg-forest has-checked:text-white has-checked:border-forest hover:bg-canvas">
+                        <input type="radio" name="category" value="amdal" class="sr-only" @checked(old('category', $contract->category ?? 'amdal') === 'amdal')>
+                        <x-ui-icon name="document" class="h-4 w-4" />
+                        <span>AMDAL</span>
+                    </label>
+                    <label class="inline-flex items-center gap-2 rounded-xl border border-line px-4 py-2.5 text-xs font-bold cursor-pointer transition has-checked:bg-forest has-checked:text-white has-checked:border-forest hover:bg-canvas">
+                        <input type="radio" name="category" value="engineering" class="sr-only" @checked(old('category', $contract->category ?? 'amdal') === 'engineering')>
+                        <x-ui-icon name="wrench" class="h-4 w-4" />
+                        <span>Engineering</span>
+                    </label>
+                </div>
+                @error('category')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
 
             {{-- 1. No. SPK / PO & Tanggal SPK --}}
             <div class="grid gap-4 sm:grid-cols-2">
@@ -319,7 +341,7 @@
 
             {{-- Tombol Aksi Simpan --}}
             <div class="flex items-center justify-end gap-3 pt-2 border-t border-line">
-                <a href="{{ route('contracts.index') }}" class="btn-ghost">
+                <a href="{{ route('contracts.index', ['category' => $contract->category ?? 'amdal']) }}" class="btn-ghost">
                     Batal
                 </a>
                 <button type="submit" class="btn-forest inline-flex items-center gap-2">

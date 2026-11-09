@@ -2,16 +2,22 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Schema;
 
 class ProjectContract extends Model
 {
     use HasFactory;
 
+    public const CATEGORY_AMDAL = 'amdal';
+    public const CATEGORY_ENGINEERING = 'engineering';
+
     protected $fillable = [
         'user_id',
+        'category',
         'spk_number',
         'spk_date',
         'project_name',
@@ -43,9 +49,46 @@ class ProjectContract extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::creating(function (self $model) {
+            if (empty($model->category)) {
+                $model->category = self::CATEGORY_AMDAL;
+            }
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function isAmdal(): bool
+    {
+        return $this->category === self::CATEGORY_AMDAL;
+    }
+
+    public function isEngineering(): bool
+    {
+        return $this->category === self::CATEGORY_ENGINEERING;
+    }
+
+    public function categoryLabel(): string
+    {
+        return match ($this->category) {
+            self::CATEGORY_ENGINEERING => 'Engineering',
+            default => 'AMDAL',
+        };
+    }
+
+    public function scopeAmdal(Builder $query): Builder
+    {
+        return $query->where('category', self::CATEGORY_AMDAL);
+    }
+
+    public function scopeEngineering(Builder $query): Builder
+    {
+        return $query->where('category', self::CATEGORY_ENGINEERING);
     }
 
     public function sourceDocumentUrl(): ?string

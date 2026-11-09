@@ -532,6 +532,7 @@ class InventoryApplicationTest extends TestCase
         // 2. Submit contract
         $file = \Illuminate\Http\UploadedFile::fake()->create('spk_document.pdf', 500, 'application/pdf');
         $storeRes = $this->actingAs($user)->post(route('contracts.store'), [
+            'category' => 'amdal',
             'spk_number' => '001/SPK/TEST/2026',
             'spk_date' => '2026-11-07',
             'project_name' => 'Proyek WTP Semarang',
@@ -550,15 +551,16 @@ class InventoryApplicationTest extends TestCase
             'source_document_file' => $file,
         ]);
 
-        $storeRes->assertRedirect(route('contracts.index'));
+        $storeRes->assertRedirect(route('contracts.index', ['category' => 'amdal']));
         $this->assertDatabaseHas('project_contracts', [
+            'category' => 'amdal',
             'spk_number' => '001/SPK/TEST/2026',
             'project_name' => 'Proyek WTP Semarang',
             'contract_value' => 25000000,
         ]);
 
         // 3. Verify session has sticky project name
-        $this->assertEquals('Proyek WTP Semarang', session('last_project_name'));
+        $this->assertEquals('Proyek WTP Semarang', session('last_project_name_amdal'));
 
         // 4. Visit create page again, should have sticky project prefilled
         $res2 = $this->actingAs($user)->get(route('contracts.create'));

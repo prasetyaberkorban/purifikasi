@@ -4,11 +4,18 @@ namespace App\Services;
 
 use App\Models\Asset;
 use App\Models\AssetLoan;
+use App\Models\AssetMaintenance;
+use App\Models\AssetProcurement;
+use App\Models\EmployeeLeave;
+use App\Models\MeetingAttendance;
+use App\Models\ProjectContract;
+use App\Models\VehicleLoan;
 use Illuminate\Support\Collection;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -41,11 +48,115 @@ class ExcelReportService
         ]);
     }
 
+    /**
+     * Ekspor seluruh data yang ada di website ke dalam satu file Excel multi-sheet.
+     *
+     * @param  array<string, Collection<int, mixed>>  $datasets
+     * @param  array<string, string>  $filters
+     */
+    public function streamAll(array $datasets, array $filters = []): StreamedResponse
+    {
+        $spreadsheet = new Spreadsheet;
+
+        // Sheet 1: Ringkasan Eksekutif
+        $sheetSummary = $spreadsheet->getActiveSheet();
+        $this->populateSummarySheet($sheetSummary, $datasets, $filters);
+
+        // Sheet 2: Inventaris Aset
+        $sheetAssets = $spreadsheet->createSheet();
+        $this->populateAssetsWorksheet($sheetAssets, $datasets['assets'] ?? collect(), $filters);
+
+        // Sheet 3: Peminjaman Barang
+        $sheetLoans = $spreadsheet->createSheet();
+        $this->populateLoansWorksheet($sheetLoans, $datasets['loans'] ?? collect(), $filters);
+
+        // Sheet 4: Service Kendaraan & Aset
+        $sheetMaint = $spreadsheet->createSheet();
+        $this->populateMaintenancesWorksheet($sheetMaint, $datasets['maintenances'] ?? collect(), $filters);
+
+        // Sheet 5: Realisasi Pengadaan
+        $sheetProc = $spreadsheet->createSheet();
+        $this->populateProcurementsWorksheet($sheetProc, $datasets['procurements'] ?? collect(), $filters);
+
+        // Sheet 6: Izin & Cuti
+        $sheetLeaves = $spreadsheet->createSheet();
+        $this->populateLeavesWorksheet($sheetLeaves, $datasets['leaves'] ?? collect(), $filters);
+
+        // Sheet 7: Peminjaman Kendaraan
+        $sheetVehicles = $spreadsheet->createSheet();
+        $this->populateVehicleLoansWorksheet($sheetVehicles, $datasets['vehicleLoans'] ?? collect(), $filters);
+
+        // Sheet 8: Daftar Hadir
+        $sheetAtt = $spreadsheet->createSheet();
+        $this->populateAttendancesWorksheet($sheetAtt, $datasets['attendances'] ?? collect(), $filters);
+
+        // Sheet 9: Kontrak AMDAL
+        $sheetAmdal = $spreadsheet->createSheet();
+        $this->populateContractsWorksheet($sheetAmdal, $datasets['contractsAmdal'] ?? collect(), array_merge($filters, ['category_label' => 'AMDAL']), 'Kontrak AMDAL');
+
+        // Sheet 10: Kontrak Engineering
+        $sheetEng = $spreadsheet->createSheet();
+        $this->populateContractsWorksheet($sheetEng, $datasets['contractsEngineering'] ?? collect(), array_merge($filters, ['category_label' => 'ENGINEERING']), 'Kontrak Engineering');
+
+        $spreadsheet->setActiveSheetIndex(0);
+
+        $filename = 'laporan-konsolidasi-seluruh-data-purifikasi-'.now()->format('Ymd-His').'.xlsx';
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            (new Xlsx($spreadsheet))->save('php://output');
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Cache-Control' => 'max-age=0',
+        ]);
+    }
+
+    private function populateSummarySheet(Worksheet $sheet, array $datasets, array $filters): void
+    {
+        $sheet->setTitle('Ringkasan');
+
+        $headers = ['No', 'Modul / Entitas Data', 'Total Data / Catatan', 'Keterangan Metrik'];
+        $this->writeHeader($sheet, 'RINGKASAN EKSEKUTIF SELURUH DATA SISTEM PURIFIKASI', $headers);
+        $this->writeFilters($sheet, count($headers), $filters, ['from' => 'Periode dari', 'to' => 'Periode sampai']);
+
+        $contractsAmdalValue = (float) ($datasets['contractsAmdal'] ?? collect())->sum('contract_value');
+        $contractsEngValue = (float) ($datasets['contractsEngineering'] ?? collect())->sum('contract_value');
+        $assetsValue = (float) ($datasets['assets'] ?? collect())->sum(fn ($a) => (float) $a->totalValue());
+
+        $summaryData = [
+            [1, 'Inventaris Aset & Barang', count($datasets['assets'] ?? []), 'Total Nilai: Rp '.number_format($assetsValue, 0, ',', '.')],
+            [2, 'Peminjaman Barang', count($datasets['loans'] ?? []), 'Transaksi Pinjam / Kembali'],
+            [3, 'Service & Pemeliharaan', count($datasets['maintenances'] ?? []), 'Riwayat Servis'],
+            [4, 'Realisasi Pengadaan', count($datasets['procurements'] ?? []), 'Riwayat Belanja / Pengadaan'],
+            [5, 'Izin, Cuti & WFA', count($datasets['leaves'] ?? []), 'Pengajuan Karyawan'],
+            [6, 'Peminjaman Kendaraan Operasional', count($datasets['vehicleLoans'] ?? []), 'Riwayat Peminjaman'],
+            [7, 'Daftar Hadir Rapat & Kegiatan', count($datasets['attendances'] ?? []), 'Peserta / Notulensi Rapat'],
+            [8, 'Rekapitulasi Kontrak / SPK - AMDAL', count($datasets['contractsAmdal'] ?? []), 'Nilai Total: Rp '.number_format($contractsAmdalValue, 0, ',', '.')],
+            [9, 'Rekapitulasi Kontrak / SPK - Engineering', count($datasets['contractsEngineering'] ?? []), 'Nilai Total: Rp '.number_format($contractsEngValue, 0, ',', '.')],
+            [10, 'Penilaian Fatik Individual', count($datasets['fatigue'] ?? []), 'Pemeriksaan Kesehatan & Kesiapan'],
+        ];
+
+        $rowNumber = 4;
+        foreach ($summaryData as $row) {
+            $sheet->fromArray($row, null, 'A'.$rowNumber);
+            $rowNumber++;
+        }
+
+        $this->styleBody($sheet, 4, $rowNumber - 1, count($headers));
+        $sheet->freezePane('A4');
+    }
+
     /** @param  Collection<int, Asset>  $rows */
     private function assetsSheet(Collection $rows, array $filters): Spreadsheet
     {
         $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
+        $this->populateAssetsWorksheet($sheet, $rows, $filters);
+
+        return $spreadsheet;
+    }
+
+    private function populateAssetsWorksheet(Worksheet $sheet, Collection $rows, array $filters): void
+    {
         $sheet->setTitle('Inventaris');
 
         $headers = ['Kode Aset', 'Nama Barang', 'Kategori', 'Ruangan', 'Stok', 'Dipinjam', 'Tersedia', 'Nilai Total'];
@@ -57,7 +168,6 @@ class ExcelReportService
         ]);
 
         $rowNumber = 4;
-
         foreach ($rows as $asset) {
             $sheet->fromArray([
                 $asset->code,
@@ -76,8 +186,6 @@ class ExcelReportService
         $this->styleBody($sheet, 4, $rowNumber - 1, count($headers));
         $sheet->getStyle('H4:H'.max(4, $rowNumber - 1))->getNumberFormat()->setFormatCode('#,##0');
         $sheet->freezePane('A4');
-
-        return $spreadsheet;
     }
 
     /** @param  Collection<int, AssetLoan>  $rows */
@@ -85,6 +193,13 @@ class ExcelReportService
     {
         $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
+        $this->populateLoansWorksheet($sheet, $rows, $filters);
+
+        return $spreadsheet;
+    }
+
+    private function populateLoansWorksheet(Worksheet $sheet, Collection $rows, array $filters): void
+    {
         $sheet->setTitle('Peminjaman');
 
         $headers = ['Kode Pinjam', 'Kode Aset', 'Nama Barang', 'Peminjam', 'Jumlah', 'Keperluan', 'Ruangan', 'Tgl Pinjam', 'Tenggat', 'Tgl Kembali', 'Status', 'Kondisi Kembali', 'Petugas'];
@@ -96,7 +211,6 @@ class ExcelReportService
         ]);
 
         $rowNumber = 4;
-
         foreach ($rows as $loan) {
             $sheet->fromArray([
                 $loan->code,
@@ -105,13 +219,13 @@ class ExcelReportService
                 $loan->borrower?->name,
                 $loan->quantity,
                 $loan->purpose,
-                $loan->room,
-                $loan->borrowed_at?->format('d/m/Y'),
+                $loan->room ?? '-',
+                $loan->borrowed_at?->format('d/m/Y H:i'),
                 $loan->due_at?->format('d/m/Y'),
-                $loan->returned_at?->format('d/m/Y'),
+                $loan->returned_at?->format('d/m/Y H:i') ?? '-',
                 $loan->status->label(),
-                $loan->condition_on_return?->label(),
-                $loan->handler?->name,
+                $loan->condition_on_return ? ucfirst(str_replace('_', ' ', $loan->condition_on_return)) : '-',
+                $loan->handler?->name ?? '-',
             ], null, 'A'.$rowNumber);
 
             $rowNumber++;
@@ -119,20 +233,25 @@ class ExcelReportService
 
         $this->styleBody($sheet, 4, $rowNumber - 1, count($headers));
         $sheet->freezePane('A4');
-
-        return $spreadsheet;
     }
 
-    /** @param  Collection<int, \App\Models\AssetMaintenance>  $rows */
+    /** @param  Collection<int, AssetMaintenance>  $rows */
     private function maintenancesSheet(Collection $rows, array $filters): Spreadsheet
     {
         $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
+        $this->populateMaintenancesWorksheet($sheet, $rows, $filters);
+
+        return $spreadsheet;
+    }
+
+    private function populateMaintenancesWorksheet(Worksheet $sheet, Collection $rows, array $filters): void
+    {
         $sheet->setTitle('Service');
 
-        $headers = ['Kode', 'Tanggal Service', 'PIC', 'Nama Barang', 'Merk / Type', 'Tempat Service', 'Pernah Service', 'Keterangan Kerusakan', 'Status'];
+        $headers = ['Kode', 'Tanggal Service', 'PIC', 'Nama Kendaraan/Aset', 'Merk / Type', 'Tempat Service', 'Status Service', 'Keterangan Kerusakan', 'Status'];
 
-        $this->writeHeader($sheet, 'LAPORAN RIWAYAT SERVICE & PEMELIHARAAN', $headers);
+        $this->writeHeader($sheet, 'LAPORAN SERVICE & PEMELIHARAAN KENDARAAN / ASET', $headers);
         $this->writeFilters($sheet, count($headers), $filters, ['q' => 'Pencarian']);
 
         $rowNumber = 4;
@@ -153,15 +272,20 @@ class ExcelReportService
 
         $this->styleBody($sheet, 4, $rowNumber - 1, count($headers));
         $sheet->freezePane('A4');
-
-        return $spreadsheet;
     }
 
-    /** @param  Collection<int, \App\Models\AssetProcurement>  $rows */
+    /** @param  Collection<int, AssetProcurement>  $rows */
     private function procurementsSheet(Collection $rows, array $filters): Spreadsheet
     {
         $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
+        $this->populateProcurementsWorksheet($sheet, $rows, $filters);
+
+        return $spreadsheet;
+    }
+
+    private function populateProcurementsWorksheet(Worksheet $sheet, Collection $rows, array $filters): void
+    {
         $sheet->setTitle('Pengadaan');
 
         $headers = ['Kode', 'Tanggal Realisasi', 'PIC', 'Nama Barang', 'Merk / Type', 'Jumlah / Ukuran', 'Nama Toko / Link', 'Status'];
@@ -186,15 +310,20 @@ class ExcelReportService
 
         $this->styleBody($sheet, 4, $rowNumber - 1, count($headers));
         $sheet->freezePane('A4');
-
-        return $spreadsheet;
     }
 
-    /** @param  Collection<int, \App\Models\EmployeeLeave>  $rows */
+    /** @param  Collection<int, EmployeeLeave>  $rows */
     private function leavesSheet(Collection $rows, array $filters): Spreadsheet
     {
         $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
+        $this->populateLeavesWorksheet($sheet, $rows, $filters);
+
+        return $spreadsheet;
+    }
+
+    private function populateLeavesWorksheet(Worksheet $sheet, Collection $rows, array $filters): void
+    {
         $sheet->setTitle('Izin-Cuti-WFA');
 
         $headers = ['Kode', 'Tanggal Pengajuan', 'Nama Karyawan/Magang', 'Jenis Izin', 'Durasi (Hari)', 'Keterangan', 'Status'];
@@ -218,15 +347,20 @@ class ExcelReportService
 
         $this->styleBody($sheet, 4, $rowNumber - 1, count($headers));
         $sheet->freezePane('A4');
-
-        return $spreadsheet;
     }
 
-    /** @param  Collection<int, \App\Models\VehicleLoan>  $rows */
+    /** @param  Collection<int, VehicleLoan>  $rows */
     private function vehicleLoansSheet(Collection $rows, array $filters): Spreadsheet
     {
         $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
+        $this->populateVehicleLoansWorksheet($sheet, $rows, $filters);
+
+        return $spreadsheet;
+    }
+
+    private function populateVehicleLoansWorksheet(Worksheet $sheet, Collection $rows, array $filters): void
+    {
         $sheet->setTitle('Peminjaman Kendaraan');
 
         $headers = ['Kode', 'Tgl Berangkat', 'Tgl Kembali', 'PIC', 'Driver', 'Kendaraan', 'KM Berangkat', 'Tujuan', 'Kebersihan', 'Saran', 'Status'];
@@ -254,15 +388,20 @@ class ExcelReportService
 
         $this->styleBody($sheet, 4, $rowNumber - 1, count($headers));
         $sheet->freezePane('A4');
-
-        return $spreadsheet;
     }
 
-    /** @param  Collection<int, \App\Models\MeetingAttendance>  $rows */
+    /** @param  Collection<int, MeetingAttendance>  $rows */
     private function attendancesSheet(Collection $rows, array $filters): Spreadsheet
     {
         $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
+        $this->populateAttendancesWorksheet($sheet, $rows, $filters);
+
+        return $spreadsheet;
+    }
+
+    private function populateAttendancesWorksheet(Worksheet $sheet, Collection $rows, array $filters): void
+    {
         $sheet->setTitle('Daftar Hadir');
 
         $headers = ['Kode', 'Tanggal Kegiatan', 'Nama Peserta', 'Jabatan', 'Cabang', 'Jenis Kegiatan', 'Pimpinan / Pemateri', 'Ringkasan Materi'];
@@ -287,38 +426,33 @@ class ExcelReportService
 
         $this->styleBody($sheet, 4, $rowNumber - 1, count($headers));
         $sheet->freezePane('A4');
-
-        return $spreadsheet;
     }
 
-    /** @param  Collection<int, \App\Models\ProjectContract>  $rows */
+    /** @param  Collection<int, ProjectContract>  $rows */
     private function contractsSheet(Collection $rows, array $filters): Spreadsheet
     {
         $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle('Rekap Kontrak SPK');
+        $sheetTitle = ! empty($filters['category_label']) ? 'Kontrak '.$filters['category_label'] : 'Rekap Kontrak SPK';
+        $this->populateContractsWorksheet($sheet, $rows, $filters, $sheetTitle);
+
+        return $spreadsheet;
+    }
+
+    private function populateContractsWorksheet(Worksheet $sheet, Collection $rows, array $filters, string $sheetTitle = 'Rekap Kontrak SPK'): void
+    {
+        $sheet->setTitle(substr($sheetTitle, 0, 31));
 
         $headers = [
-            'No',
-            'No. SPK / PO',
-            'Tanggal SPK',
-            'Proyek / Kegiatan',
-            'Nama Pihak Kedua',
-            'Jabatan / Uraian Pekerjaan',
-            'Nilai Kontrak (Rp)',
-            'Durasi (Bulan)',
-            'Termin I (%)',
-            'Termin II (%)',
-            'Termin III (%)',
-            'Bank',
-            'Nomor Rekening',
-            'Atas Nama Rekening',
-            'Dokumen Sumber (Teks)',
-            'File Lampiran',
-            'Catatan Kontrak',
+            'No', 'No. SPK / PO', 'Tanggal SPK', 'Proyek / Kegiatan',
+            'Nama Pihak Kedua', 'Jabatan / Uraian Pekerjaan', 'Nilai Kontrak (Rp)',
+            'Durasi (Bulan)', 'Termin I (%)', 'Termin II (%)', 'Termin III (%)',
+            'Bank', 'Nomor Rekening', 'Atas Nama Rekening', 'Dokumen Teks / Link',
+            'File Lampiran', 'Catatan Kontrak',
         ];
 
-        $this->writeHeader($sheet, 'REKAPITULASI KONTRAK / SPK', $headers);
+        $categoryLabel = ! empty($filters['category_label']) ? ' - '.$filters['category_label'] : '';
+        $this->writeHeader($sheet, 'REKAPITULASI KONTRAK / SPK'.$categoryLabel, $headers);
         $this->writeFilters($sheet, count($headers), $filters, [
             'q' => 'Pencarian',
             'bank' => 'Bank',
@@ -353,12 +487,10 @@ class ExcelReportService
         $this->styleBody($sheet, 4, $rowNumber - 1, count($headers));
         $sheet->getStyle('G4:G'.max(4, $rowNumber - 1))->getNumberFormat()->setFormatCode('#,##0');
         $sheet->freezePane('A4');
-
-        return $spreadsheet;
     }
 
     /** @param  array<int, string>  $headers */
-    private function writeHeader(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet, string $title, array $headers): void
+    private function writeHeader(Worksheet $sheet, string $title, array $headers): void
     {
         $lastColumn = $this->columnLetter(count($headers));
 
@@ -381,7 +513,7 @@ class ExcelReportService
     }
 
     /** @param  array<string, string>  $filters */
-    private function writeFilters(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet, int $columnCount, array $filters, array $labels): void
+    private function writeFilters(Worksheet $sheet, int $columnCount, array $filters, array $labels): void
     {
         $parts = [];
 
@@ -396,7 +528,7 @@ class ExcelReportService
         $sheet->getStyle('A2')->getFont()->setItalic(true)->setSize(9);
     }
 
-    private function styleBody(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet, int $from, int $to, int $columnCount): void
+    private function styleBody(Worksheet $sheet, int $from, int $to, int $columnCount): void
     {
         if ($to < $from) {
             return;

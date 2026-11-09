@@ -1,5 +1,31 @@
-<x-app-layout title="Laporan Inventaris" subtitle="Rekap aset dan peminjaman, siap diekspor" active="reports">
-    <form method="GET" action="{{ route('reports.index') }}" class="card p-3.5 sm:p-4">
+<x-app-layout title="Laporan Inventaris & Operasional" subtitle="Rekapitulasi seluruh modul sistem dan inventaris, siap diekspor" active="reports">
+    <div class="space-y-4">
+        {{-- Banner Export Seluruh Data Website (All-in-One Report) --}}
+        <div class="card p-4 sm:p-5 bg-gradient-to-r from-forest/10 via-leaf/5 to-transparent border-leaf/30 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div class="flex items-center gap-3.5">
+                <div class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-forest text-white shadow-sm">
+                    <x-ui-icon name="document" class="h-6 w-6" />
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-forest">Export Seluruh Data Website (All-in-One Report)</h3>
+                    <p class="text-xs text-ink-soft mt-0.5">
+                        Gabungkan semua data sistem (Aset, Peminjaman, Servis, Pengadaan, Cuti, Kendaraan, Presensi, dan Kontrak AMDAL &amp; Engineering) dalam 1 report.
+                    </p>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 shrink-0">
+                <a href="{{ route('reports.all.pdf', $filters) }}" class="btn-forest text-xs py-2 px-3.5 shadow-xs">
+                    <x-ui-icon name="download" class="h-4 w-4" />
+                    <span>Export Semua Data (PDF)</span>
+                </a>
+                <a href="{{ route('reports.all.excel', $filters) }}" class="btn-primary text-xs py-2 px-3.5 shadow-xs">
+                    <x-ui-icon name="download" class="h-4 w-4" />
+                    <span>Export Semua Data (Excel)</span>
+                </a>
+            </div>
+        </div>
+
+        <form method="GET" action="{{ route('reports.index') }}" class="card p-3.5 sm:p-4">
         <div class="grid gap-2.5 lg:grid-cols-12">
             <div class="lg:col-span-3">
                 <label for="from" class="label">Dari Tanggal</label>
@@ -145,4 +171,5 @@
             </table>
         </div>
     </section>
+    </div>
 </x-app-layout>

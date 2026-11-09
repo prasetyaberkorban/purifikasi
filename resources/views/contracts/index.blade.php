@@ -1,5 +1,19 @@
-<x-app-layout title="Rekapitulasi Kontrak / SPK" subtitle="Arsip dan dokumentasi surat perintah kerja serta rekapitulasi nilai kontrak proyek" active="contracts">
+<x-app-layout :title="'Rekapitulasi Kontrak / SPK - ' . ($category === 'engineering' ? 'Engineering' : 'AMDAL')" :subtitle="'Arsip dan dokumentasi surat perintah kerja divisi ' . ($category === 'engineering' ? 'Engineering' : 'AMDAL')" active="contracts">
     <div class="space-y-4">
+        {{-- Tab Navigasi Divisi / Kategori Kontrak --}}
+        <div class="flex items-center gap-2 border-b border-line pb-1">
+            <a href="{{ route('contracts.index', ['category' => 'amdal']) }}"
+               class="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl transition {{ $category === 'amdal' ? 'bg-forest text-white shadow-sm' : 'bg-white text-ink-soft hover:bg-forest/5 hover:text-forest border border-line' }}">
+                <x-ui-icon name="document" class="h-4 w-4" />
+                <span>Rekapitulasi AMDAL</span>
+            </a>
+            <a href="{{ route('contracts.index', ['category' => 'engineering']) }}"
+               class="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl transition {{ $category === 'engineering' ? 'bg-forest text-white shadow-sm' : 'bg-white text-ink-soft hover:bg-forest/5 hover:text-forest border border-line' }}">
+                <x-ui-icon name="wrench" class="h-4 w-4" />
+                <span>Rekapitulasi Engineering</span>
+            </a>
+        </div>
+
         {{-- Ringkasan Metrik (2 Kartu Bersih) --}}
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div class="card p-3.5 flex items-center gap-3">
@@ -7,7 +21,7 @@
                     <x-ui-icon name="document" class="h-5 w-5" />
                 </div>
                 <div>
-                    <p class="text-[0.68rem] font-semibold uppercase tracking-wider text-ink-soft">Total Kontrak / SPK</p>
+                    <p class="text-[0.68rem] font-semibold uppercase tracking-wider text-ink-soft">Total Kontrak / SPK ({{ $category === 'engineering' ? 'Engineering' : 'AMDAL' }})</p>
                     <p class="text-lg font-extrabold text-ink">{{ number_format($totalContracts, 0, ',', '.') }}</p>
                 </div>
             </div>
@@ -16,7 +30,7 @@
                     <x-ui-icon name="chart" class="h-5 w-5" />
                 </div>
                 <div>
-                    <p class="text-[0.68rem] font-semibold uppercase tracking-wider text-ink-soft">Total Nilai Kontrak</p>
+                    <p class="text-[0.68rem] font-semibold uppercase tracking-wider text-ink-soft">Total Nilai Kontrak ({{ $category === 'engineering' ? 'Engineering' : 'AMDAL' }})</p>
                     <p class="text-lg font-extrabold text-forest">Rp {{ number_format($totalValue, 0, ',', '.') }}</p>
                 </div>
             </div>
@@ -24,6 +38,8 @@
 
         {{-- Baris Filter Pencarian Cepat --}}
         <form method="GET" action="{{ route('contracts.index') }}" class="card p-3 sm:p-3.5">
+            <input type="hidden" name="category" value="{{ $category }}">
+
             <div class="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-12">
                 {{-- Global Search --}}
                 <div class="lg:col-span-4">
@@ -63,7 +79,7 @@
                         Filter
                     </button>
                     @if ($search !== '' || $bank !== '' || $from !== '' || $to !== '')
-                        <a href="{{ route('contracts.index') }}" class="btn-ghost py-1.5 px-2 text-xs text-red-600 hover:bg-red-50" title="Bersihkan semua filter">
+                        <a href="{{ route('contracts.index', ['category' => $category]) }}" class="btn-ghost py-1.5 px-2 text-xs text-red-600 hover:bg-red-50" title="Bersihkan semua filter">
                             <x-ui-icon name="x" class="h-3.5 w-3.5" />
                         </a>
                     @endif
@@ -73,7 +89,7 @@
             {{-- Toolbar Tombol Export & Tombol Tunggal "Tambah Kontrak" --}}
             <div class="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-line/70 pt-2.5">
                 <div class="flex items-center gap-2 text-xs text-ink-soft">
-                    <span>Menampilkan <strong>{{ $contracts->total() }}</strong> data kontrak</span>
+                    <span>Menampilkan <strong>{{ $contracts->total() }}</strong> data kontrak ({{ $category === 'engineering' ? 'Engineering' : 'AMDAL' }})</span>
                     @if ($search !== '' || $bank !== '' || $from !== '' || $to !== '')
                         <span class="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-[0.68rem] font-medium text-amber-700 border border-amber-200">
                             Filter aktif
@@ -88,9 +104,9 @@
                     <a href="{{ route('contracts.export.excel', request()->query()) }}" class="btn-ghost py-1.5 px-3 text-xs">
                         <x-ui-icon name="download" class="h-3.5 w-3.5" /> Export Excel
                     </a>
-                    <a href="{{ route('contracts.create') }}" class="btn-primary inline-flex items-center gap-1.5 py-1.5 px-3 text-xs shadow-xs">
+                    <a href="{{ route('contracts.create', ['category' => $category]) }}" class="btn-primary inline-flex items-center gap-1.5 py-1.5 px-3 text-xs shadow-xs">
                         <x-ui-icon name="plus" class="h-3.5 w-3.5" />
-                        <span>Tambah Kontrak</span>
+                        <span>Tambah Kontrak {{ $category === 'engineering' ? 'Engineering' : 'AMDAL' }}</span>
                     </a>
                 </div>
             </div>
@@ -242,8 +258,8 @@
                                     <div class="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-canvas text-ink-soft mb-2">
                                         <x-ui-icon name="document" class="h-5 w-5 opacity-40" />
                                     </div>
-                                    <p class="font-medium text-xs">Belum ada data Rekapitulasi Kontrak / SPK.</p>
-                                    <p class="mt-0.5 text-[0.7rem]">Klik tombol "Tambah Kontrak" untuk menambahkan data.</p>
+                                    <p class="font-medium text-xs">Belum ada data Rekapitulasi Kontrak / SPK ({{ $category === 'engineering' ? 'Engineering' : 'AMDAL' }}).</p>
+                                    <p class="mt-0.5 text-[0.7rem]">Klik tombol "Tambah Kontrak {{ $category === 'engineering' ? 'Engineering' : 'AMDAL' }}" untuk menambahkan data.</p>
                                 </td>
                             </tr>
                         @endforelse

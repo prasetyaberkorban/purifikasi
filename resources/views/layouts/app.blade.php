@@ -56,7 +56,7 @@
                                 @foreach ($item['children'] as $child)
                                     <li>
                                         <a href="{{ $child['route'] }}"
-                                           class="nav-link py-2 text-[0.83rem] {{ request()->routeIs($child['active']) ? 'nav-link-active' : '' }}">
+                                           class="nav-link py-2 text-[0.83rem] {{ (!empty($child['is_active']) || request()->routeIs($child['active'])) ? 'nav-link-active' : '' }}">
                                             <span class="h-1.5 w-1.5 rounded-full bg-current opacity-60"></span>
                                             {{ $child['label'] }}
                                         </a>

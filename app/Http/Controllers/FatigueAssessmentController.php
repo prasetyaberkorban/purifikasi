@@ -76,6 +76,10 @@ class FatigueAssessmentController extends Controller
 
     public function show(FatigueAssessment $fatigue): View
     {
+        if (! auth()->user()->isAdmin() && $fatigue->user_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki hak akses untuk riwayat penilaian fatik ini.');
+        }
+
         $fatigue->load('user');
 
         return view('fatigue.show', [

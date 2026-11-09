@@ -128,6 +128,10 @@ class EmployeeLeaveController extends Controller
 
     public function show(EmployeeLeave $leave): View
     {
+        if (! auth()->user()->isAdmin() && $leave->user_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki hak akses untuk riwayat pengajuan ini.');
+        }
+
         $leave->load('user');
 
         return view('leaves.show', [
@@ -137,6 +141,10 @@ class EmployeeLeaveController extends Controller
 
     public function download(EmployeeLeave $leave): StreamedResponse
     {
+        if (! auth()->user()->isAdmin() && $leave->user_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki hak akses untuk lampiran ini.');
+        }
+
         if (! $leave->attachment_path || ! Storage::disk('public')->exists($leave->attachment_path)) {
             abort(404, 'File lampiran tidak ditemukan.');
         }

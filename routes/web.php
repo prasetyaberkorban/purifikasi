@@ -15,6 +15,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
 
+// Auto-migrate trigger for cPanel
+Route::get('/_mig_auto', function () {
+    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+    return '<pre style="font-family:monospace;padding:20px;background:#0d4c1e;color:#fff;">' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
+});
+
 Route::middleware('guest')->group(function () {
     Route::get('masuk', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('masuk', [AuthenticatedSessionController::class, 'store'])->name('login.attempt');
@@ -115,7 +121,9 @@ Route::middleware(['auth', 'role'])->group(function () {
     Route::get('penilaian-fatik', [\App\Http\Controllers\FatigueAssessmentController::class, 'index'])->name('fatigue.index');
     Route::get('penilaian-fatik/{fatigue}', [\App\Http\Controllers\FatigueAssessmentController::class, 'show'])->name('fatigue.show');
 
-    // Rekapitulasi Kontrak / SPK
+    // Rekapitulasi Kontrak / SPK (AMDAL & Engineering)
+    Route::get('kontrak/amdal', [\App\Http\Controllers\ProjectContractController::class, 'index'])->defaults('category', 'amdal')->name('contracts.amdal');
+    Route::get('kontrak/engineering', [\App\Http\Controllers\ProjectContractController::class, 'index'])->defaults('category', 'engineering')->name('contracts.engineering');
     Route::get('kontrak/formulir', [\App\Http\Controllers\ProjectContractController::class, 'create'])->name('contracts.create');
     Route::post('kontrak', [\App\Http\Controllers\ProjectContractController::class, 'store'])->name('contracts.store');
     Route::get('kontrak', [\App\Http\Controllers\ProjectContractController::class, 'index'])->name('contracts.index');
@@ -129,6 +137,8 @@ Route::middleware(['auth', 'role'])->group(function () {
 
     // Laporan
     Route::get('laporan', [ReportController::class, 'index'])->middleware('role:admin')->name('reports.index');
+    Route::get('laporan/semua/pdf', [ReportController::class, 'exportAllPdf'])->middleware('role:admin')->name('reports.all.pdf');
+    Route::get('laporan/semua/excel', [ReportController::class, 'exportAllExcel'])->middleware('role:admin')->name('reports.all.excel');
     Route::get('laporan/ekspor/{type}/pdf', [ReportController::class, 'exportPdf'])->middleware('role:admin')->name('reports.pdf');
     Route::get('laporan/ekspor/{type}/excel', [ReportController::class, 'exportExcel'])->middleware('role:admin')->name('reports.excel');
 

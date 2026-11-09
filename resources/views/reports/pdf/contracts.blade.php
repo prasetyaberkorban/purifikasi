@@ -21,7 +21,7 @@
 </head>
 <body>
     <div class="head">
-        <h1>REKAPITULASI KONTRAK / SPK</h1>
+        <h1>REKAPITULASI KONTRAK / SPK{{ !empty($filters['category_label']) ? ' - ' . $filters['category_label'] : '' }}</h1>
         <div class="muted">{{ $company }} &middot; {{ $unit }}</div>
     </div>
 

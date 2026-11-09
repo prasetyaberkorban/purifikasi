@@ -4,13 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\Asset;
 use App\Models\AssetLoan;
+use App\Models\AssetMaintenance;
+use App\Models\AssetProcurement;
 use App\Models\Category;
+use App\Models\EmployeeLeave;
+use App\Models\FatigueAssessment;
 use App\Models\Location;
+use App\Models\MeetingAttendance;
+use App\Models\ProjectContract;
 use App\Models\User;
+use App\Models\VehicleLoan;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
@@ -39,12 +47,58 @@ class ReportController extends Controller
         ]);
     }
 
-    public function exportExcel(Request $request, string $type): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function exportExcel(Request $request, string $type): StreamedResponse
     {
         $filters = $this->filters($request);
         $rows = $type === 'loans' ? $this->loanRows($filters) : $this->assetRows($filters);
 
         return app(\App\Services\ExcelReportService::class)->stream($type, $rows, $filters);
+    }
+
+    /**
+     * Ekspor seluruh data dari semua modul di website menjadi satu file PDF konsolidasi.
+     */
+    public function exportAllPdf(Request $request): \Symfony\Component\HttpFoundation\Response
+    {
+        $datasets = $this->allDatasets();
+        $filters = $this->filters($request);
+
+        $pdf = app(\App\Services\PdfReportService::class)->renderAll($datasets, $filters);
+
+        return response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="laporan-lengkap-semua-data-purifikasi-'.now()->format('Ymd-His').'.pdf"',
+        ]);
+    }
+
+    /**
+     * Ekspor seluruh data dari semua modul di website menjadi satu file Excel (multi-sheet).
+     */
+    public function exportAllExcel(Request $request): StreamedResponse
+    {
+        $datasets = $this->allDatasets();
+        $filters = $this->filters($request);
+
+        return app(\App\Services\ExcelReportService::class)->streamAll($datasets, $filters);
+    }
+
+    /**
+     * @return array<string, Collection<int, mixed>>
+     */
+    private function allDatasets(): array
+    {
+        return [
+            'assets' => Asset::query()->with(['category', 'location', 'items'])->orderBy('code')->get(),
+            'loans' => AssetLoan::query()->with(['asset.category', 'borrower', 'handler'])->latestFirst()->get(),
+            'maintenances' => AssetMaintenance::query()->with(['user', 'asset'])->latest()->get(),
+            'procurements' => AssetProcurement::query()->with('user')->latest()->get(),
+            'leaves' => EmployeeLeave::query()->with('user')->latest()->get(),
+            'vehicleLoans' => VehicleLoan::query()->with('user')->latest()->get(),
+            'attendances' => MeetingAttendance::query()->with('user')->latest()->get(),
+            'contractsAmdal' => ProjectContract::query()->with('user')->where('category', 'amdal')->latest('spk_date')->latest('id')->get(),
+            'contractsEngineering' => ProjectContract::query()->with('user')->where('category', 'engineering')->latest('spk_date')->latest('id')->get(),
+            'fatigue' => FatigueAssessment::query()->with('user')->latest()->get(),
+        ];
     }
 
     /** @return array<string, string> */
@@ -90,7 +144,7 @@ class ReportController extends Controller
         return [
             'units' => (int) $assets->sum('quantity'),
             'loans' => (int) $this->loanRows($filters)->where('status', \App\Enums\LoanStatus::Dipinjam)->sum('quantity'),
-            'value' => (float) $assets->sum(fn (Asset $a) => $a->totalValue()),
+            'value' => (float) $assets->sum(fn ($a) => (float) $a->totalValue()),
             'skus' => $assets->count(),
         ];
     }
@@ -100,7 +154,6 @@ class ReportController extends Controller
         return [
             'categories' => Category::query()->orderBy('name')->get(),
             'locations' => Location::query()->orderBy('name')->get(),
-            'users' => User::query()->orderBy('name')->get(),
         ];
     }
 }

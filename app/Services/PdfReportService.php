@@ -39,4 +39,23 @@ class PdfReportService
 
         return $pdf->output();
     }
+
+    /**
+     * Render laporan konsolidasi seluruh modul di website ke dalam satu file PDF.
+     *
+     * @param  array<string, mixed>  $datasets
+     * @param  array<string, string>  $filters
+     */
+    public function renderAll(array $datasets, array $filters = []): string
+    {
+        $pdf = Pdf::loadView('reports.pdf.all', [
+            'datasets' => $datasets,
+            'filters' => $filters,
+            'company' => Setting::get('company_name', 'PT. Purifikasi'),
+            'unit' => Setting::get('company_unit', 'OFFICE DATABASE KANTOR'),
+            'printedAt' => now(),
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->output();
+    }
 }

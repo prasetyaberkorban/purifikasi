@@ -151,11 +151,16 @@ class LoanController extends Controller
     /** @return array<string, int> */
     private function summary(): array
     {
+        $base = AssetLoan::query();
+        if (auth()->check() && ! auth()->user()->isStaff()) {
+            $base->where('borrower_id', auth()->id());
+        }
+
         return [
-            'active' => AssetLoan::query()->active()->count(),
-            'units' => (int) AssetLoan::query()->active()->sum('quantity'),
-            'overdue' => AssetLoan::query()->active()->whereDate('due_at', '<', today())->count(),
-            'returned' => AssetLoan::query()->where('status', 'dikembalikan')->count(),
+            'active' => (clone $base)->active()->count(),
+            'units' => (int) (clone $base)->active()->sum('quantity'),
+            'overdue' => (clone $base)->active()->whereDate('due_at', '<', today())->count(),
+            'returned' => (clone $base)->where('status', 'dikembalikan')->count(),
         ];
     }
 }
