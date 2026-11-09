@@ -141,12 +141,20 @@ class LoanController extends Controller
             abort(403, 'Hanya Admin yang dapat menghapus data peminjaman.');
         }
 
-        $validated = $request->validate([
-            'ids' => ['required', 'array'],
-            'ids.*' => ['required', 'integer', 'exists:asset_loans,id'],
-        ]);
+        $rawIds = $request->input('ids', []);
+        if (is_string($rawIds)) {
+            $rawIds = explode(',', $rawIds);
+        }
+        if ($request->filled('ids_csv')) {
+            $rawIds = array_merge((array) $rawIds, explode(',', (string) $request->input('ids_csv')));
+        }
+        $ids = array_filter(array_unique(array_map('intval', (array) $rawIds)));
 
-        $deletedCount = $this->loans->bulkDeleteLoans($validated['ids'], $request->user());
+        if (empty($ids)) {
+            return back()->withErrors(['ids' => 'Tidak ada data peminjaman yang dipilih.']);
+        }
+
+        $deletedCount = $this->loans->bulkDeleteLoans($ids, $request->user());
 
         return back()->with('status', "Berhasil menghapus {$deletedCount} data peminjaman.");
     }

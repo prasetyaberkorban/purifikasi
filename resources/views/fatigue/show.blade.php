@@ -126,6 +126,17 @@
                     <a href="{{ route('fatigue.index') }}" class="btn-ghost w-full text-center text-xs">
                         Kembali ke Riwayat
                     </a>
+                    @if (auth()->user()->isAdmin() || $assessment->user_id === auth()->id())
+                        <form method="POST" action="{{ route('fatigue.destroy', $assessment) }}"
+                              data-confirm-title="Hapus Penilaian Fatik?"
+                              data-confirm-delete="Apakah Anda yakin ingin menghapus data penilaian fatik {{ $assessment->code }} ({{ $assessment->name }})? Tindakan ini permanen.">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn-ghost w-full text-center text-xs text-red-600 hover:bg-red-50 flex items-center justify-center gap-1.5">
+                                <x-ui-icon name="trash" class="h-3.5 w-3.5" /> Hapus Penilaian Fatik
+                            </button>
+                        </form>
+                    @endif
                 </div>
             </section>
         </div>

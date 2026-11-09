@@ -86,4 +86,41 @@ class FatigueAssessmentController extends Controller
             'assessment' => $fatigue,
         ]);
     }
+
+    public function destroy(Request $request, FatigueAssessment $fatigue): RedirectResponse
+    {
+        if (! $request->user()->isAdmin() && $fatigue->user_id !== $request->user()->id) {
+            abort(403, 'Anda tidak memiliki hak akses untuk menghapus riwayat penilaian fatik ini.');
+        }
+
+        $code = $fatigue->code;
+        $fatigue->delete();
+
+        return redirect()->route('fatigue.index')->with('status', "Riwayat penilaian fatik {$code} berhasil dihapus.");
+    }
+
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $rawIds = $request->input('ids', []);
+        if (is_string($rawIds)) {
+            $rawIds = explode(',', $rawIds);
+        }
+        if ($request->filled('ids_csv')) {
+            $rawIds = array_merge((array) $rawIds, explode(',', (string) $request->input('ids_csv')));
+        }
+        $ids = array_filter(array_unique(array_map('intval', (array) $rawIds)));
+
+        if (empty($ids)) {
+            return back()->withErrors(['ids' => 'Tidak ada data penilaian fatik yang dipilih.']);
+        }
+
+        $query = FatigueAssessment::whereIn('id', $ids);
+        if (! $request->user()->isAdmin()) {
+            $query->where('user_id', $request->user()->id);
+        }
+
+        $count = $query->delete();
+
+        return back()->with('status', "Berhasil menghapus {$count} data riwayat penilaian fatik terpilih.");
+    }
 }

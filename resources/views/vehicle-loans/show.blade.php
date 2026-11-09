@@ -20,6 +20,18 @@
                     <x-ui-icon name="plus" class="h-3.5 w-3.5" />
                     <span>Formulir Baru</span>
                 </a>
+                @if (auth()->user()->isAdmin() || $loan->user_id === auth()->id())
+                    <form method="POST" action="{{ route('vehicle-loans.destroy', $loan) }}"
+                          data-confirm-title="Hapus Riwayat Peminjaman?"
+                          data-confirm-delete="Apakah Anda yakin ingin menghapus data peminjaman {{ $loan->code }} ({{ $loan->vehicle_type }})? Foto speedometer juga akan dihapus permanen.">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn-ghost text-red-600 hover:bg-red-50 text-xs inline-flex items-center gap-1.5">
+                            <x-ui-icon name="trash" class="h-3.5 w-3.5" />
+                            <span>Hapus</span>
+                        </button>
+                    </form>
+                @endif
             </div>
         </div>
 

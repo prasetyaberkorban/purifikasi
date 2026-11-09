@@ -173,4 +173,59 @@ class VehicleLoanController extends Controller
             'loan' => $vehicleLoan,
         ]);
     }
+
+    public function destroy(Request $request, VehicleLoan $vehicleLoan): RedirectResponse
+    {
+        if (! $request->user()->isAdmin() && $vehicleLoan->user_id !== $request->user()->id) {
+            abort(403, 'Anda tidak memiliki hak akses untuk menghapus riwayat peminjaman kendaraan ini.');
+        }
+
+        if ($vehicleLoan->departure_speedometer_photo_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($vehicleLoan->departure_speedometer_photo_path);
+        }
+        if ($vehicleLoan->return_speedometer_photo_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($vehicleLoan->return_speedometer_photo_path);
+        }
+
+        $code = $vehicleLoan->code;
+        $vehicleLoan->delete();
+
+        return redirect()->route('vehicle-loans.index')->with('status', "Riwayat peminjaman kendaraan {$code} berhasil dihapus.");
+    }
+
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $rawIds = $request->input('ids', []);
+        if (is_string($rawIds)) {
+            $rawIds = explode(',', $rawIds);
+        }
+        if ($request->filled('ids_csv')) {
+            $rawIds = array_merge((array) $rawIds, explode(',', (string) $request->input('ids_csv')));
+        }
+        $ids = array_filter(array_unique(array_map('intval', (array) $rawIds)));
+
+        if (empty($ids)) {
+            return back()->withErrors(['ids' => 'Tidak ada data peminjaman kendaraan yang dipilih.']);
+        }
+
+        $query = VehicleLoan::whereIn('id', $ids);
+        if (! $request->user()->isAdmin()) {
+            $query->where('user_id', $request->user()->id);
+        }
+
+        $items = $query->get();
+        $count = 0;
+        foreach ($items as $item) {
+            if ($item->departure_speedometer_photo_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($item->departure_speedometer_photo_path);
+            }
+            if ($item->return_speedometer_photo_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($item->return_speedometer_photo_path);
+            }
+            $item->delete();
+            $count++;
+        }
+
+        return back()->with('status', "Berhasil menghapus {$count} data riwayat peminjaman kendaraan terpilih.");
+    }
 }

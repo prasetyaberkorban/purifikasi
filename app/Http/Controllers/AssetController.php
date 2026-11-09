@@ -204,15 +204,23 @@ class AssetController extends Controller
             abort(403, 'Hanya Admin yang dapat menghapus data aset.');
         }
 
-        $validated = $request->validate([
-            'ids' => ['required', 'array'],
-            'ids.*' => ['required', 'integer', 'exists:assets,id'],
-        ]);
+        $rawIds = $request->input('ids', []);
+        if (is_string($rawIds)) {
+            $rawIds = explode(',', $rawIds);
+        }
+        if ($request->filled('ids_csv')) {
+            $rawIds = array_merge((array) $rawIds, explode(',', (string) $request->input('ids_csv')));
+        }
+        $ids = array_filter(array_unique(array_map('intval', (array) $rawIds)));
+
+        if (empty($ids)) {
+            return back()->withErrors(['ids' => 'Tidak ada data aset yang dipilih.']);
+        }
 
         $deletedCount = 0;
         $skippedCount = 0;
 
-        foreach ($validated['ids'] as $id) {
+        foreach ($ids as $id) {
             $asset = Asset::find($id);
             if (! $asset) {
                 continue;

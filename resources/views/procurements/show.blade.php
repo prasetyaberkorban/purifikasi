@@ -137,6 +137,17 @@
                     <a href="{{ route('procurements.index') }}" class="btn-ghost w-full text-center text-xs">
                         Kembali ke Riwayat
                     </a>
+                    @if (auth()->user()->isAdmin() || $procurement->user_id === auth()->id())
+                        <form method="POST" action="{{ route('procurements.destroy', $procurement) }}"
+                              data-confirm-title="Hapus Riwayat Realisasi?"
+                              data-confirm-delete="Apakah Anda yakin ingin menghapus data realisasi {{ $procurement->code }} ({{ $procurement->item_name }})? File bukti realisasi juga akan dihapus permanen.">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn-ghost w-full text-center text-xs text-red-600 hover:bg-red-50 flex items-center justify-center gap-1.5">
+                                <x-ui-icon name="trash" class="h-3.5 w-3.5" /> Hapus Realisasi Pengadaan
+                            </button>
+                        </form>
+                    @endif
                 </div>
             </section>
         </div>

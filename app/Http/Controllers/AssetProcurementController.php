@@ -149,4 +149,53 @@ class AssetProcurementController extends Controller
             $procurement->proof_file_name
         );
     }
+
+    public function destroy(Request $request, AssetProcurement $procurement): RedirectResponse
+    {
+        if (! $request->user()->isAdmin() && $procurement->user_id !== $request->user()->id) {
+            abort(403, 'Anda tidak memiliki hak akses untuk menghapus riwayat realisasi ini.');
+        }
+
+        if ($procurement->proof_file_path) {
+            Storage::disk('public')->delete($procurement->proof_file_path);
+        }
+
+        $code = $procurement->code;
+        $procurement->delete();
+
+        return redirect()->route('procurements.index')->with('status', "Riwayat realisasi {$code} berhasil dihapus.");
+    }
+
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $rawIds = $request->input('ids', []);
+        if (is_string($rawIds)) {
+            $rawIds = explode(',', $rawIds);
+        }
+        if ($request->filled('ids_csv')) {
+            $rawIds = array_merge((array) $rawIds, explode(',', (string) $request->input('ids_csv')));
+        }
+        $ids = array_filter(array_unique(array_map('intval', (array) $rawIds)));
+
+        if (empty($ids)) {
+            return back()->withErrors(['ids' => 'Tidak ada data realisasi pengadaan yang dipilih.']);
+        }
+
+        $query = AssetProcurement::whereIn('id', $ids);
+        if (! $request->user()->isAdmin()) {
+            $query->where('user_id', $request->user()->id);
+        }
+
+        $items = $query->get();
+        $count = 0;
+        foreach ($items as $item) {
+            if ($item->proof_file_path) {
+                Storage::disk('public')->delete($item->proof_file_path);
+            }
+            $item->delete();
+            $count++;
+        }
+
+        return back()->with('status', "Berhasil menghapus {$count} data riwayat realisasi pengadaan terpilih.");
+    }
 }

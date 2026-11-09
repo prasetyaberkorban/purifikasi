@@ -124,6 +124,17 @@
                     <a href="{{ route('services.index') }}" class="btn-ghost w-full text-center text-xs">
                         Kembali ke Riwayat
                     </a>
+                    @if (auth()->user()->isAdmin() || $maintenance->user_id === auth()->id())
+                        <form method="POST" action="{{ route('services.destroy', $maintenance) }}"
+                              data-confirm-title="Hapus Riwayat Service?"
+                              data-confirm-delete="Apakah Anda yakin ingin menghapus data service {{ $maintenance->code }} ({{ $maintenance->asset_name }})? Tindakan ini permanen.">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn-ghost w-full text-center text-xs text-red-600 hover:bg-red-50 flex items-center justify-center gap-1.5">
+                                <x-ui-icon name="trash" class="h-3.5 w-3.5" /> Hapus Data Service
+                            </button>
+                        </form>
+                    @endif
                 </div>
             </section>
         </div>

@@ -163,4 +163,41 @@ class MeetingAttendanceController extends Controller
             'attendance' => $attendance,
         ]);
     }
+
+    public function destroy(Request $request, MeetingAttendance $attendance): RedirectResponse
+    {
+        if (! $request->user()->isAdmin() && $attendance->user_id !== $request->user()->id) {
+            abort(403, 'Anda tidak memiliki hak akses untuk menghapus riwayat daftar hadir ini.');
+        }
+
+        $code = $attendance->code;
+        $attendance->delete();
+
+        return redirect()->route('attendances.index')->with('status', "Riwayat daftar hadir {$code} berhasil dihapus.");
+    }
+
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $rawIds = $request->input('ids', []);
+        if (is_string($rawIds)) {
+            $rawIds = explode(',', $rawIds);
+        }
+        if ($request->filled('ids_csv')) {
+            $rawIds = array_merge((array) $rawIds, explode(',', (string) $request->input('ids_csv')));
+        }
+        $ids = array_filter(array_unique(array_map('intval', (array) $rawIds)));
+
+        if (empty($ids)) {
+            return back()->withErrors(['ids' => 'Tidak ada data daftar hadir yang dipilih.']);
+        }
+
+        $query = MeetingAttendance::whereIn('id', $ids);
+        if (! $request->user()->isAdmin()) {
+            $query->where('user_id', $request->user()->id);
+        }
+
+        $count = $query->delete();
+
+        return back()->with('status', "Berhasil menghapus {$count} data riwayat daftar hadir terpilih.");
+    }
 }

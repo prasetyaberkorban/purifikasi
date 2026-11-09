@@ -140,4 +140,59 @@ class AssetMaintenanceController extends Controller
             'maintenance' => $maintenance,
         ]);
     }
+
+    public function destroy(Request $request, AssetMaintenance $maintenance): RedirectResponse
+    {
+        if (! $request->user()->isAdmin() && $maintenance->user_id !== $request->user()->id) {
+            abort(403, 'Anda tidak memiliki hak akses untuk menghapus riwayat service ini.');
+        }
+
+        if ($maintenance->condition_photo_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($maintenance->condition_photo_path);
+        }
+        if ($maintenance->invoice_photo_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($maintenance->invoice_photo_path);
+        }
+
+        $code = $maintenance->code;
+        $maintenance->delete();
+
+        return redirect()->route('services.index')->with('status', "Riwayat service {$code} berhasil dihapus.");
+    }
+
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $rawIds = $request->input('ids', []);
+        if (is_string($rawIds)) {
+            $rawIds = explode(',', $rawIds);
+        }
+        if ($request->filled('ids_csv')) {
+            $rawIds = array_merge((array) $rawIds, explode(',', (string) $request->input('ids_csv')));
+        }
+        $ids = array_filter(array_unique(array_map('intval', (array) $rawIds)));
+
+        if (empty($ids)) {
+            return back()->withErrors(['ids' => 'Tidak ada data service yang dipilih.']);
+        }
+
+        $query = AssetMaintenance::whereIn('id', $ids);
+        if (! $request->user()->isAdmin()) {
+            $query->where('user_id', $request->user()->id);
+        }
+
+        $items = $query->get();
+        $count = 0;
+        foreach ($items as $item) {
+            if ($item->condition_photo_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($item->condition_photo_path);
+            }
+            if ($item->invoice_photo_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($item->invoice_photo_path);
+            }
+            $item->delete();
+            $count++;
+        }
+
+        return back()->with('status', "Berhasil menghapus {$count} data riwayat service terpilih.");
+    }
 }

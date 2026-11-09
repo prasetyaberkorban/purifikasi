@@ -154,4 +154,53 @@ class EmployeeLeaveController extends Controller
             $leave->attachment_name
         );
     }
+
+    public function destroy(Request $request, EmployeeLeave $leave): RedirectResponse
+    {
+        if (! $request->user()->isAdmin() && $leave->user_id !== $request->user()->id) {
+            abort(403, 'Anda tidak memiliki hak akses untuk menghapus riwayat izin/cuti ini.');
+        }
+
+        if ($leave->attachment_path) {
+            Storage::disk('public')->delete($leave->attachment_path);
+        }
+
+        $code = $leave->code;
+        $leave->delete();
+
+        return redirect()->route('leaves.index')->with('status', "Riwayat izin/cuti {$code} berhasil dihapus.");
+    }
+
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $rawIds = $request->input('ids', []);
+        if (is_string($rawIds)) {
+            $rawIds = explode(',', $rawIds);
+        }
+        if ($request->filled('ids_csv')) {
+            $rawIds = array_merge((array) $rawIds, explode(',', (string) $request->input('ids_csv')));
+        }
+        $ids = array_filter(array_unique(array_map('intval', (array) $rawIds)));
+
+        if (empty($ids)) {
+            return back()->withErrors(['ids' => 'Tidak ada data izin/cuti yang dipilih.']);
+        }
+
+        $query = EmployeeLeave::whereIn('id', $ids);
+        if (! $request->user()->isAdmin()) {
+            $query->where('user_id', $request->user()->id);
+        }
+
+        $items = $query->get();
+        $count = 0;
+        foreach ($items as $item) {
+            if ($item->attachment_path) {
+                Storage::disk('public')->delete($item->attachment_path);
+            }
+            $item->delete();
+            $count++;
+        }
+
+        return back()->with('status', "Berhasil menghapus {$count} data riwayat izin/cuti terpilih.");
+    }
 }

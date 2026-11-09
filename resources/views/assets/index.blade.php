@@ -117,6 +117,7 @@
                       class="inline">
                     @csrf
                     @method('DELETE')
+                    <input type="hidden" name="ids_csv" :value="selected.join(',')">
                     <template x-for="id in selected" :key="id">
                         <input type="hidden" name="ids[]" :value="id">
                     </template>

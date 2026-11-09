@@ -1,5 +1,16 @@
 <x-app-layout title="Riwayat Peminjaman Kendaraan" subtitle="Daftar dan arsip peminjaman kendaraan operasional kantor" active="vehicle_loans">
-    <div class="space-y-4">
+    <div class="space-y-4"
+         x-data="{
+             selected: [],
+             allIds: {{ json_encode($loans->pluck('id')) }},
+             toggleAll() {
+                 if (this.selected.length === this.allIds.length) {
+                     this.selected = [];
+                 } else {
+                     this.selected = [...this.allIds];
+                 }
+             }
+         }">
         {{-- Toolbar Atas --}}
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <form method="GET" action="{{ route('vehicle-loans.index') }}" class="flex-1 max-w-md">
@@ -27,12 +38,44 @@
             </div>
         </div>
 
+        {{-- Bulk Actions Bar --}}
+        <div x-show="selected.length > 0" x-cloak x-transition
+             class="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-forest-900/5 border border-forest/20 p-2.5 sm:px-4">
+            <div class="flex items-center gap-2 text-xs font-semibold text-forest">
+                <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-forest text-white text-[0.7rem] px-1.5" x-text="selected.length"></span>
+                <span>data peminjaman kendaraan dipilih</span>
+            </div>
+
+            <form method="POST" action="{{ route('vehicle-loans.bulk-destroy') }}"
+                  data-confirm-title="Hapus Data Peminjaman Terpilih?"
+                  :data-confirm-delete="'Apakah Anda yakin ingin menghapus ' + selected.length + ' data peminjaman kendaraan terpilih secara permanen?'"
+                  class="inline">
+                @csrf
+                @method('DELETE')
+                <input type="hidden" name="ids_csv" :value="selected.join(',')">
+                <template x-for="id in selected" :key="id">
+                    <input type="hidden" name="ids[]" :value="id">
+                </template>
+                <button type="submit" class="btn-ghost text-red-600 hover:bg-red-50 text-xs py-1.5 px-3">
+                    <x-ui-icon name="trash" class="h-4 w-4" />
+                    <span>Hapus Terpilih (<span x-text="selected.length"></span>)</span>
+                </button>
+            </form>
+        </div>
+
         {{-- Tabel Data --}}
         <div class="card overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs">
                     <thead class="border-b border-line bg-canvas/75 text-[0.7rem] uppercase tracking-wider text-ink-soft">
                         <tr>
+                            <th class="px-3 py-3 text-center" style="width: 38px;">
+                                <input type="checkbox"
+                                       @change="toggleAll()"
+                                       :checked="allIds.length > 0 && selected.length === allIds.length"
+                                       class="rounded border-line text-forest focus:ring-forest cursor-pointer"
+                                       title="Pilih Semua">
+                            </th>
                             <th class="px-4 py-3">Kode &amp; Tanggal</th>
                             <th class="px-4 py-3">PIC &amp; Driver</th>
                             <th class="px-4 py-3">Kendaraan &amp; KM</th>
@@ -44,7 +87,13 @@
                     </thead>
                     @forelse ($loans as $item)
                         <tbody class="divide-y divide-line" x-data="{ showBerangkat: false, showKembali: false }">
-                            <tr class="hover:bg-canvas/50 transition">
+                            <tr class="hover:bg-canvas/50 transition" :class="selected.includes({{ $item->id }}) ? '!bg-forest/10' : ''">
+                                <td class="px-3 py-3.5 text-center">
+                                    <input type="checkbox"
+                                           :value="{{ $item->id }}"
+                                           x-model="selected"
+                                           class="rounded border-line text-forest focus:ring-forest cursor-pointer">
+                                </td>
                                 <td class="px-4 py-3.5 whitespace-nowrap">
                                     <span class="font-mono font-bold text-ink">{{ $item->code }}</span>
                                     <p class="text-[0.7rem] text-ink-soft">
@@ -107,18 +156,32 @@
                                     </div>
                                 </td>
                                 <td class="px-4 py-3.5 text-right whitespace-nowrap">
-                                    <a href="{{ route('vehicle-loans.show', $item) }}"
-                                       class="inline-flex items-center gap-1 rounded-lg border border-line px-2.5 py-1 text-[0.72rem] font-semibold text-forest hover:border-leaf/40 hover:bg-leaf-50">
-                                        <span>Detail</span>
-                                        <x-ui-icon name="arrow-up-right" class="h-3 w-3" />
-                                    </a>
+                                    <div class="flex items-center justify-end gap-1.5">
+                                        <a href="{{ route('vehicle-loans.show', $item) }}"
+                                           class="inline-flex items-center gap-1 rounded-lg border border-line px-2.5 py-1 text-[0.72rem] font-semibold text-forest hover:border-leaf/40 hover:bg-leaf-50">
+                                            <span>Detail</span>
+                                            <x-ui-icon name="arrow-up-right" class="h-3 w-3" />
+                                        </a>
+                                        @if (auth()->user()->isAdmin() || $item->user_id === auth()->id())
+                                            <form method="POST" action="{{ route('vehicle-loans.destroy', $item) }}"
+                                                  data-confirm-title="Hapus Riwayat Peminjaman?"
+                                                  data-confirm-delete="Apakah Anda yakin ingin menghapus data peminjaman {{ $item->code }} ({{ $item->vehicle_type }})? Foto speedometer juga akan dihapus permanen."
+                                                  class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="rounded-lg p-1.5 text-ink-soft hover:bg-red-50 hover:text-red-600 transition" title="Hapus {{ $item->code }}">
+                                                    <x-ui-icon name="trash" class="h-4 w-4" />
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
 
                             {{-- Dropdown Preview Foto Speedometer Berangkat --}}
                             @if ($item->departure_speedometer_photo_path)
                                 <tr x-show="showBerangkat" x-cloak class="bg-canvas/30">
-                                    <td colspan="7" class="p-4">
+                                    <td colspan="8" class="p-4">
                                         <div class="rounded-xl border border-line bg-white p-3 shadow-xs max-w-sm">
                                             <p class="text-[0.7rem] font-bold text-forest mb-2 flex items-center justify-between">
                                                 <span>Foto Speedometer Berangkat:</span>
@@ -135,7 +198,7 @@
                             {{-- Dropdown Preview Foto Speedometer Kembali --}}
                             @if ($item->return_speedometer_photo_path)
                                 <tr x-show="showKembali" x-cloak class="bg-canvas/30">
-                                    <td colspan="7" class="p-4">
+                                    <td colspan="8" class="p-4">
                                         <div class="rounded-xl border border-line bg-white p-3 shadow-xs max-w-sm">
                                             <p class="text-[0.7rem] font-bold text-forest mb-2 flex items-center justify-between">
                                                 <span>Foto Speedometer Kembali:</span>
@@ -152,7 +215,7 @@
                     @empty
                         <tbody>
                             <tr>
-                                <td colspan="7" class="px-4 py-12 text-center text-ink-soft">
+                                <td colspan="8" class="px-4 py-12 text-center text-ink-soft">
                                     <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-canvas text-forest/70 mb-3">
                                         <x-ui-icon name="car" class="h-6 w-6" />
                                     </div>

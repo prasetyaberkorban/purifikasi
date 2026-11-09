@@ -96,56 +96,57 @@
                     @endif
                 </div>
             </div>
-
-            {{-- Bulk Actions Bar (Muncul Otomatis saat ada baris dicentang) --}}
-            <div x-show="selected.length > 0" x-cloak x-transition
-                 class="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-forest-900/5 border border-forest/20 p-2.5 sm:px-4">
-                <div class="flex items-center gap-2 text-xs font-semibold text-forest">
-                    <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-forest text-white text-[0.7rem] px-1.5" x-text="selected.length"></span>
-                    <span>data kontrak dipilih</span>
-                </div>
-
-                <form method="POST" action="{{ route('contracts.bulk-destroy') }}"
-                      data-confirm-title="Hapus Data Kontrak Terpilih?"
-                      :data-confirm-delete="'Apakah Anda yakin ingin menghapus ' + selected.length + ' data kontrak terpilih secara permanen?'"
-                      class="inline">
-                    @csrf
-                    @method('DELETE')
-                    <template x-for="id in selected" :key="id">
-                        <input type="hidden" name="ids[]" :value="id">
-                    </template>
-                    <button type="submit" class="btn-ghost text-red-600 hover:bg-red-50 text-xs py-1.5 px-3">
-                        <x-ui-icon name="trash" class="h-4 w-4" />
-                        <span>Hapus Terpilih (<span x-text="selected.length"></span>)</span>
-                    </button>
-                </form>
-            </div>
-
-            {{-- Toolbar Tombol Export & Tombol Tunggal "Tambah Kontrak" --}}
-            <div class="flex flex-wrap items-center justify-between gap-2 border-t border-line/70 pt-2.5">
-                <div class="flex items-center gap-2 text-xs text-ink-soft">
-                    <span>Menampilkan <strong>{{ $contracts->total() }}</strong> data kontrak ({{ $category === 'engineering' ? 'Engineering' : 'AMDAL' }})</span>
-                    @if ($search !== '' || $bank !== '' || $from !== '' || $to !== '')
-                        <span class="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-[0.68rem] font-medium text-amber-700 border border-amber-200">
-                            Filter aktif
-                        </span>
-                    @endif
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <a href="{{ route('contracts.export.pdf', request()->query()) }}" class="btn-ghost py-1.5 px-3 text-xs">
-                        <x-ui-icon name="download" class="h-3.5 w-3.5" /> Export PDF
-                    </a>
-                    <a href="{{ route('contracts.export.excel', request()->query()) }}" class="btn-ghost py-1.5 px-3 text-xs">
-                        <x-ui-icon name="download" class="h-3.5 w-3.5" /> Export Excel
-                    </a>
-                    <a href="{{ route('contracts.create', ['category' => $category]) }}" class="btn-primary inline-flex items-center gap-1.5 py-1.5 px-3 text-xs shadow-xs">
-                        <x-ui-icon name="plus" class="h-3.5 w-3.5" />
-                        <span>Tambah Kontrak {{ $category === 'engineering' ? 'Engineering' : 'AMDAL' }}</span>
-                    </a>
-                </div>
-            </div>
         </form>
+
+        {{-- Bulk Actions Bar (Muncul Otomatis saat ada baris dicentang) --}}
+        <div x-show="selected.length > 0" x-cloak x-transition
+             class="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-forest-900/5 border border-forest/20 p-2.5 sm:px-4">
+            <div class="flex items-center gap-2 text-xs font-semibold text-forest">
+                <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-forest text-white text-[0.7rem] px-1.5" x-text="selected.length"></span>
+                <span>data kontrak dipilih</span>
+            </div>
+
+            <form method="POST" action="{{ route('contracts.bulk-destroy') }}"
+                  data-confirm-title="Hapus Data Kontrak Terpilih?"
+                  :data-confirm-delete="'Apakah Anda yakin ingin menghapus ' + selected.length + ' data kontrak terpilih secara permanen?'"
+                  class="inline">
+                @csrf
+                @method('DELETE')
+                <input type="hidden" name="ids_csv" :value="selected.join(',')">
+                <template x-for="id in selected" :key="id">
+                    <input type="hidden" name="ids[]" :value="id">
+                </template>
+                <button type="submit" class="btn-ghost text-red-600 hover:bg-red-50 text-xs py-1.5 px-3">
+                    <x-ui-icon name="trash" class="h-4 w-4" />
+                    <span>Hapus Terpilih (<span x-text="selected.length"></span>)</span>
+                </button>
+            </form>
+        </div>
+
+        {{-- Toolbar Tombol Export & Tombol Tunggal "Tambah Kontrak" --}}
+        <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2 text-xs text-ink-soft">
+                <span>Menampilkan <strong>{{ $contracts->total() }}</strong> data kontrak ({{ $category === 'engineering' ? 'Engineering' : 'AMDAL' }})</span>
+                @if ($search !== '' || $bank !== '' || $from !== '' || $to !== '')
+                    <span class="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-[0.68rem] font-medium text-amber-700 border border-amber-200">
+                        Filter aktif
+                    </span>
+                @endif
+            </div>
+
+            <div class="flex items-center gap-2">
+                <a href="{{ route('contracts.export.pdf', request()->query()) }}" class="btn-ghost py-1.5 px-3 text-xs">
+                    <x-ui-icon name="download" class="h-3.5 w-3.5" /> Export PDF
+                </a>
+                <a href="{{ route('contracts.export.excel', request()->query()) }}" class="btn-ghost py-1.5 px-3 text-xs">
+                    <x-ui-icon name="download" class="h-3.5 w-3.5" /> Export Excel
+                </a>
+                <a href="{{ route('contracts.create', ['category' => $category]) }}" class="btn-primary inline-flex items-center gap-1.5 py-1.5 px-3 text-xs shadow-xs">
+                    <x-ui-icon name="plus" class="h-3.5 w-3.5" />
+                    <span>Tambah Kontrak {{ $category === 'engineering' ? 'Engineering' : 'AMDAL' }}</span>
+                </a>
+            </div>
+        </div>
 
         {{-- Tabel Data Rekapitulasi Kontrak (Lebih Kecil, Rapi, Selang-Seling Putih-Hijau) --}}
         <div class="card overflow-hidden">

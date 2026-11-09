@@ -246,12 +246,20 @@ class ProjectContractController extends Controller
 
     public function bulkDestroy(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'ids' => ['required', 'array'],
-            'ids.*' => ['required', 'integer', 'exists:project_contracts,id'],
-        ]);
+        $rawIds = $request->input('ids', []);
+        if (is_string($rawIds)) {
+            $rawIds = explode(',', $rawIds);
+        }
+        if ($request->filled('ids_csv')) {
+            $rawIds = array_merge((array) $rawIds, explode(',', (string) $request->input('ids_csv')));
+        }
+        $ids = array_filter(array_unique(array_map('intval', (array) $rawIds)));
 
-        $query = ProjectContract::whereIn('id', $validated['ids']);
+        if (empty($ids)) {
+            return back()->withErrors(['ids' => 'Tidak ada data kontrak yang dipilih.']);
+        }
+
+        $query = ProjectContract::whereIn('id', $ids);
         if (! $request->user()->isAdmin()) {
             $query->where('user_id', $request->user()->id);
         }

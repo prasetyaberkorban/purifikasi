@@ -77,52 +77,64 @@ Route::middleware(['auth', 'role'])->group(function () {
     Route::delete('peminjaman/{loan}', [LoanController::class, 'destroy'])->middleware('role:admin')->name('loans.destroy');
 
     // Service & Pemeliharaan Aset Kantor
+    Route::delete('service/bulk-delete', [\App\Http\Controllers\AssetMaintenanceController::class, 'bulkDestroy'])->name('services.bulk-destroy');
     Route::get('service/formulir', [\App\Http\Controllers\AssetMaintenanceController::class, 'create'])->name('services.create');
     Route::post('service', [\App\Http\Controllers\AssetMaintenanceController::class, 'store'])->name('services.store');
     Route::get('service', [\App\Http\Controllers\AssetMaintenanceController::class, 'index'])->name('services.index');
     Route::get('service/ekspor/pdf', [\App\Http\Controllers\AssetMaintenanceController::class, 'exportPdf'])->name('services.export.pdf');
     Route::get('service/ekspor/excel', [\App\Http\Controllers\AssetMaintenanceController::class, 'exportExcel'])->name('services.export.excel');
     Route::get('service/{maintenance}', [\App\Http\Controllers\AssetMaintenanceController::class, 'show'])->name('services.show');
+    Route::delete('service/{maintenance}', [\App\Http\Controllers\AssetMaintenanceController::class, 'destroy'])->name('services.destroy');
 
     // Realisasi Pengadaan & Aset Kantor
+    Route::delete('pengadaan/bulk-delete', [\App\Http\Controllers\AssetProcurementController::class, 'bulkDestroy'])->name('procurements.bulk-destroy');
     Route::get('pengadaan/formulir', [\App\Http\Controllers\AssetProcurementController::class, 'create'])->name('procurements.create');
     Route::post('pengadaan', [\App\Http\Controllers\AssetProcurementController::class, 'store'])->name('procurements.store');
     Route::get('pengadaan', [\App\Http\Controllers\AssetProcurementController::class, 'index'])->name('procurements.index');
     Route::get('pengadaan/ekspor/pdf', [\App\Http\Controllers\AssetProcurementController::class, 'exportPdf'])->name('procurements.export.pdf');
     Route::get('pengadaan/ekspor/excel', [\App\Http\Controllers\AssetProcurementController::class, 'exportExcel'])->name('procurements.export.excel');
     Route::get('pengadaan/{procurement}', [\App\Http\Controllers\AssetProcurementController::class, 'show'])->name('procurements.show');
+    Route::delete('pengadaan/{procurement}', [\App\Http\Controllers\AssetProcurementController::class, 'destroy'])->name('procurements.destroy');
     Route::get('pengadaan/{procurement}/unduh', [\App\Http\Controllers\AssetProcurementController::class, 'download'])->name('procurements.download');
 
     // Izin / Cuti / WFA Karyawan & Magang
+    Route::delete('izin/bulk-delete', [\App\Http\Controllers\EmployeeLeaveController::class, 'bulkDestroy'])->name('leaves.bulk-destroy');
     Route::get('izin/formulir', [\App\Http\Controllers\EmployeeLeaveController::class, 'create'])->name('leaves.create');
     Route::post('izin', [\App\Http\Controllers\EmployeeLeaveController::class, 'store'])->name('leaves.store');
     Route::get('izin', [\App\Http\Controllers\EmployeeLeaveController::class, 'index'])->name('leaves.index');
     Route::get('izin/ekspor/pdf', [\App\Http\Controllers\EmployeeLeaveController::class, 'exportPdf'])->name('leaves.export.pdf');
     Route::get('izin/ekspor/excel', [\App\Http\Controllers\EmployeeLeaveController::class, 'exportExcel'])->name('leaves.export.excel');
     Route::get('izin/{leave}', [\App\Http\Controllers\EmployeeLeaveController::class, 'show'])->name('leaves.show');
+    Route::delete('izin/{leave}', [\App\Http\Controllers\EmployeeLeaveController::class, 'destroy'])->name('leaves.destroy');
     Route::get('izin/{leave}/unduh', [\App\Http\Controllers\EmployeeLeaveController::class, 'download'])->name('leaves.download');
 
     // Formulir Peminjaman Kendaraan
+    Route::delete('peminjaman-kendaraan/bulk-delete', [\App\Http\Controllers\VehicleLoanController::class, 'bulkDestroy'])->name('vehicle-loans.bulk-destroy');
     Route::get('peminjaman-kendaraan/formulir', [\App\Http\Controllers\VehicleLoanController::class, 'create'])->name('vehicle-loans.create');
     Route::post('peminjaman-kendaraan', [\App\Http\Controllers\VehicleLoanController::class, 'store'])->name('vehicle-loans.store');
     Route::get('peminjaman-kendaraan', [\App\Http\Controllers\VehicleLoanController::class, 'index'])->name('vehicle-loans.index');
     Route::get('peminjaman-kendaraan/ekspor/pdf', [\App\Http\Controllers\VehicleLoanController::class, 'exportPdf'])->name('vehicle-loans.export.pdf');
     Route::get('peminjaman-kendaraan/ekspor/excel', [\App\Http\Controllers\VehicleLoanController::class, 'exportExcel'])->name('vehicle-loans.export.excel');
     Route::get('peminjaman-kendaraan/{vehicleLoan}', [\App\Http\Controllers\VehicleLoanController::class, 'show'])->name('vehicle-loans.show');
+    Route::delete('peminjaman-kendaraan/{vehicleLoan}', [\App\Http\Controllers\VehicleLoanController::class, 'destroy'])->name('vehicle-loans.destroy');
 
     // Daftar Hadir
+    Route::delete('daftar-hadir/bulk-delete', [\App\Http\Controllers\MeetingAttendanceController::class, 'bulkDestroy'])->name('attendances.bulk-destroy');
     Route::get('daftar-hadir/formulir', [\App\Http\Controllers\MeetingAttendanceController::class, 'create'])->name('attendances.create');
     Route::post('daftar-hadir', [\App\Http\Controllers\MeetingAttendanceController::class, 'store'])->name('attendances.store');
     Route::get('daftar-hadir', [\App\Http\Controllers\MeetingAttendanceController::class, 'index'])->name('attendances.index');
     Route::get('daftar-hadir/ekspor/pdf', [\App\Http\Controllers\MeetingAttendanceController::class, 'exportPdf'])->name('attendances.export.pdf');
     Route::get('daftar-hadir/ekspor/excel', [\App\Http\Controllers\MeetingAttendanceController::class, 'exportExcel'])->name('attendances.export.excel');
     Route::get('daftar-hadir/{attendance}', [\App\Http\Controllers\MeetingAttendanceController::class, 'show'])->name('attendances.show');
+    Route::delete('daftar-hadir/{attendance}', [\App\Http\Controllers\MeetingAttendanceController::class, 'destroy'])->name('attendances.destroy');
 
     // Penilaian Fatik Individual
+    Route::delete('penilaian-fatik/bulk-delete', [\App\Http\Controllers\FatigueAssessmentController::class, 'bulkDestroy'])->name('fatigue.bulk-destroy');
     Route::get('penilaian-fatik/formulir', [\App\Http\Controllers\FatigueAssessmentController::class, 'create'])->name('fatigue.create');
     Route::post('penilaian-fatik', [\App\Http\Controllers\FatigueAssessmentController::class, 'store'])->name('fatigue.store');
     Route::get('penilaian-fatik', [\App\Http\Controllers\FatigueAssessmentController::class, 'index'])->name('fatigue.index');
     Route::get('penilaian-fatik/{fatigue}', [\App\Http\Controllers\FatigueAssessmentController::class, 'show'])->name('fatigue.show');
+    Route::delete('penilaian-fatik/{fatigue}', [\App\Http\Controllers\FatigueAssessmentController::class, 'destroy'])->name('fatigue.destroy');
 
     // Rekapitulasi Kontrak / SPK (AMDAL & Engineering)
     Route::delete('kontrak/bulk-delete', [\App\Http\Controllers\ProjectContractController::class, 'bulkDestroy'])->name('contracts.bulk-destroy');
