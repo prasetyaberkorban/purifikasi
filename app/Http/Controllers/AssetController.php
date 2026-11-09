@@ -198,6 +198,57 @@ class AssetController extends Controller
         return redirect()->route('assets.index')->with('status', "Aset {$name} dihapus dari inventaris.");
     }
 
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        if (! $request->user()->isAdmin()) {
+            abort(403, 'Hanya Admin yang dapat menghapus data aset.');
+        }
+
+        $validated = $request->validate([
+            'ids' => ['required', 'array'],
+            'ids.*' => ['required', 'integer', 'exists:assets,id'],
+        ]);
+
+        $deletedCount = 0;
+        $skippedCount = 0;
+
+        foreach ($validated['ids'] as $id) {
+            $asset = Asset::find($id);
+            if (! $asset) {
+                continue;
+            }
+
+            if ($asset->loans()->active()->count() > 0) {
+                $skippedCount++;
+                continue;
+            }
+
+            if ($asset->photo_path) {
+                Storage::disk('public')->delete($asset->photo_path);
+            }
+
+            $name = $asset->name;
+            $code = $asset->code;
+            $asset->delete();
+
+            AssetActivity::query()->create([
+                'user_id' => $request->user()->getKey(),
+                'type' => 'deleted',
+                'subject' => $code,
+                'description' => "{$request->user()->name} menghapus aset {$name} ({$code}) secara massal.",
+            ]);
+
+            $deletedCount++;
+        }
+
+        $message = "Berhasil menghapus {$deletedCount} aset.";
+        if ($skippedCount > 0) {
+            $message .= " {$skippedCount} aset dilewati karena masih memiliki peminjaman aktif.";
+        }
+
+        return redirect()->route('assets.index')->with('status', $message);
+    }
+
     public function check(Asset $asset): RedirectResponse
     {
         $asset->update(['last_checked_at' => now()]);

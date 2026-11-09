@@ -34,6 +34,7 @@ Route::middleware(['auth', 'role'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
     // Aset & Barang
+    Route::delete('aset/bulk-delete', [AssetController::class, 'bulkDestroy'])->middleware('role:admin')->name('assets.bulk-destroy');
     Route::get('aset', [AssetController::class, 'index'])->name('assets.index');
     Route::get('aset/tambah', [AssetController::class, 'create'])->middleware('role:admin')->name('assets.create');
     Route::post('aset', [AssetController::class, 'store'])->middleware('role:admin')->name('assets.store');
@@ -65,6 +66,7 @@ Route::middleware(['auth', 'role'])->group(function () {
     Route::delete('lokasi/{location}', [LocationController::class, 'destroy'])->middleware('role:admin')->name('locations.destroy');
 
     // Peminjaman
+    Route::delete('peminjaman/bulk-delete', [LoanController::class, 'bulkDestroy'])->middleware('role:admin')->name('loans.bulk-destroy');
     Route::get('peminjaman/aktif', [LoanController::class, 'active'])->name('loans.active');
     Route::get('peminjaman/riwayat', [LoanController::class, 'history'])->name('loans.history');
     Route::get('peminjaman/baru', [LoanController::class, 'create'])->middleware('role:admin')->name('loans.create');
@@ -72,6 +74,7 @@ Route::middleware(['auth', 'role'])->group(function () {
     Route::get('peminjaman/{loan}', [LoanController::class, 'show'])->name('loans.show');
     Route::get('peminjaman/{loan}/kembali', [LoanController::class, 'returnForm'])->middleware('role:admin')->name('loans.return.form');
     Route::post('peminjaman/{loan}/kembali', [LoanController::class, 'returnBack'])->middleware('role:admin')->name('loans.return');
+    Route::delete('peminjaman/{loan}', [LoanController::class, 'destroy'])->middleware('role:admin')->name('loans.destroy');
 
     // Service & Pemeliharaan Aset Kantor
     Route::get('service/formulir', [\App\Http\Controllers\AssetMaintenanceController::class, 'create'])->name('services.create');
@@ -122,6 +125,7 @@ Route::middleware(['auth', 'role'])->group(function () {
     Route::get('penilaian-fatik/{fatigue}', [\App\Http\Controllers\FatigueAssessmentController::class, 'show'])->name('fatigue.show');
 
     // Rekapitulasi Kontrak / SPK (AMDAL & Engineering)
+    Route::delete('kontrak/bulk-delete', [\App\Http\Controllers\ProjectContractController::class, 'bulkDestroy'])->name('contracts.bulk-destroy');
     Route::get('kontrak/amdal', [\App\Http\Controllers\ProjectContractController::class, 'index'])->defaults('category', 'amdal')->name('contracts.amdal');
     Route::get('kontrak/engineering', [\App\Http\Controllers\ProjectContractController::class, 'index'])->defaults('category', 'engineering')->name('contracts.engineering');
     Route::get('kontrak/formulir', [\App\Http\Controllers\ProjectContractController::class, 'create'])->name('contracts.create');

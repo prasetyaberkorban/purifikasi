@@ -244,6 +244,31 @@ class ProjectContractController extends Controller
             ->with('status', 'Data Kontrak / SPK berhasil dihapus.');
     }
 
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'ids' => ['required', 'array'],
+            'ids.*' => ['required', 'integer', 'exists:project_contracts,id'],
+        ]);
+
+        $query = ProjectContract::whereIn('id', $validated['ids']);
+        if (! $request->user()->isAdmin()) {
+            $query->where('user_id', $request->user()->id);
+        }
+
+        $contracts = $query->get();
+        $count = 0;
+        foreach ($contracts as $contract) {
+            if ($contract->source_document_path) {
+                Storage::disk('public')->delete($contract->source_document_path);
+            }
+            $contract->delete();
+            $count++;
+        }
+
+        return back()->with('status', "Berhasil menghapus {$count} data kontrak / SPK terpilih.");
+    }
+
     public function download(Request $request, ProjectContract $contract): StreamedResponse
     {
         $this->authorizeAccess($request, $contract);

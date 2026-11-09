@@ -1,4 +1,15 @@
 <x-app-layout title="Daftar Inventaris" subtitle="Daftar aset aktif. Klik item untuk membuka detail aset." active="assets">
+    <div x-data="{
+        selected: [],
+        allIds: {{ json_encode($assets->pluck('id')) }},
+        toggleAll() {
+            if (this.selected.length === this.allIds.length) {
+                this.selected = [];
+            } else {
+                this.selected = [...this.allIds];
+            }
+        }
+    }">
     {{-- Ringkasan --}}
     <div class="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
         <a href="{{ route('assets.index') }}"
@@ -90,17 +101,46 @@
         </div>
     </form>
 
-    {{-- Aksi --}}
-    @can('create', \App\Models\Asset::class)
-        <div class="mt-4 flex flex-wrap items-center justify-end gap-2">
-            <a href="{{ route('reports.index') }}" class="btn-ghost">
-                <x-ui-icon name="download" class="h-4 w-4" /> Ekspor
-            </a>
-            <a href="{{ route('assets.create') }}" class="btn-olive hidden px-3 py-1.5 text-xs sm:inline-flex">
-                <x-ui-icon name="plus" class="h-4 w-4" /> Tambah Barang
-            </a>
-        </div>
-    @endcan
+    {{-- Aksi & Bulk Actions --}}
+    <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+        @if (auth()->user()->isAdmin())
+            <div x-show="selected.length > 0" x-cloak x-transition
+                 class="flex items-center gap-3 rounded-xl bg-forest-900/5 border border-forest/20 p-2 sm:px-4">
+                <div class="flex items-center gap-2 text-xs font-semibold text-forest">
+                    <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-forest text-white text-[0.7rem] px-1.5" x-text="selected.length"></span>
+                    <span>aset dipilih</span>
+                </div>
+
+                <form method="POST" action="{{ route('assets.bulk-destroy') }}"
+                      data-confirm-title="Hapus Data Aset Terpilih?"
+                      :data-confirm-delete="'Apakah Anda yakin ingin menghapus ' + selected.length + ' data aset terpilih secara permanen? Aset yang sedang dipinjam akan otomatis dilewati.'"
+                      class="inline">
+                    @csrf
+                    @method('DELETE')
+                    <template x-for="id in selected" :key="id">
+                        <input type="hidden" name="ids[]" :value="id">
+                    </template>
+                    <button type="submit" class="btn-ghost text-red-600 hover:bg-red-50 text-xs py-1.5 px-3">
+                        <x-ui-icon name="trash" class="h-4 w-4" />
+                        <span>Hapus Terpilih (<span x-text="selected.length"></span>)</span>
+                    </button>
+                </form>
+            </div>
+        @else
+            <div></div>
+        @endif
+
+        @can('create', \App\Models\Asset::class)
+            <div class="flex flex-wrap items-center gap-2 ml-auto">
+                <a href="{{ route('reports.index') }}" class="btn-ghost">
+                    <x-ui-icon name="download" class="h-4 w-4" /> Ekspor
+                </a>
+                <a href="{{ route('assets.create') }}" class="btn-olive hidden px-3 py-1.5 text-xs sm:inline-flex">
+                    <x-ui-icon name="plus" class="h-4 w-4" /> Tambah Barang
+                </a>
+            </div>
+        @endcan
+    </div>
 
     {{-- Tabel desktop --}}
     <div class="card mt-4 hidden overflow-hidden md:block">
@@ -108,6 +148,15 @@
             <table class="data-table">
                 <thead>
                     <tr>
+                        @if (auth()->user()->isAdmin())
+                            <th scope="col" style="width: 40px;" class="text-center">
+                                <input type="checkbox"
+                                       @change="toggleAll()"
+                                       :checked="allIds.length > 0 && selected.length === allIds.length"
+                                       class="rounded border-line text-forest focus:ring-forest cursor-pointer"
+                                       title="Pilih Semua">
+                            </th>
+                        @endif
                         <th scope="col">Kode Aset</th>
                         <th scope="col">Nama Barang</th>
                         <th scope="col">Kategori</th>
@@ -118,7 +167,15 @@
                 </thead>
                 <tbody>
                     @forelse ($assets as $asset)
-                        <tr>
+                        <tr :class="selected.includes({{ $asset->id }}) ? 'bg-forest/5' : ''">
+                            @if (auth()->user()->isAdmin())
+                                <td class="text-center">
+                                    <input type="checkbox"
+                                           :value="{{ $asset->id }}"
+                                           x-model="selected"
+                                           class="rounded border-line text-forest focus:ring-forest cursor-pointer">
+                                </td>
+                            @endif
                             <td class="font-mono text-[0.72rem] text-ink-soft">{{ $asset->code }}</td>
                             <td>
                                 <a href="{{ route('assets.show', $asset) }}" class="font-semibold text-ink hover:text-forest">{{ $asset->name }}</a>
@@ -156,7 +213,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-10 text-center text-ink-soft">
+                            <td colspan="{{ auth()->user()->isAdmin() ? 7 : 6 }}" class="py-10 text-center text-ink-soft">
                                 Tidak ada aset yang cocok dengan filter.
                             </td>
                         </tr>
@@ -180,4 +237,5 @@
     @endif
 
     <div class="mt-5">{{ $assets->links() }}</div>
+    </div>
 </x-app-layout>

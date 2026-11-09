@@ -125,6 +125,32 @@ class LoanController extends Controller
             ->with('status', "Pengembalian {$loan->code} tercatat. Stok aset sudah diperbarui.");
     }
 
+    public function destroy(Request $request, AssetLoan $loan): RedirectResponse
+    {
+        $this->authorize('delete', $loan);
+
+        $code = $loan->code;
+        $this->loans->deleteLoan($loan, $request->user());
+
+        return back()->with('status', "Data peminjaman {$code} berhasil dihapus.");
+    }
+
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        if (! $request->user()->isAdmin()) {
+            abort(403, 'Hanya Admin yang dapat menghapus data peminjaman.');
+        }
+
+        $validated = $request->validate([
+            'ids' => ['required', 'array'],
+            'ids.*' => ['required', 'integer', 'exists:asset_loans,id'],
+        ]);
+
+        $deletedCount = $this->loans->bulkDeleteLoans($validated['ids'], $request->user());
+
+        return back()->with('status', "Berhasil menghapus {$deletedCount} data peminjaman.");
+    }
+
     private function query(Request $request): \Illuminate\Database\Eloquent\Builder
     {
         $query = AssetLoan::query()

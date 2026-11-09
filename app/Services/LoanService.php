@@ -116,6 +116,47 @@ class LoanService
         return sprintf('%s.%04d', $prefix, $sequence);
     }
 
+    public function deleteLoan(AssetLoan $loan, ?User $user = null): void
+    {
+        DB::transaction(function () use ($loan, $user) {
+            /** @var AssetLoan $locked */
+            $locked = AssetLoan::query()->lockForUpdate()->findOrFail($loan->getKey());
+            $asset = Asset::query()->lockForUpdate()->find($locked->asset_id);
+
+            // Jika masih aktif dipinjam, kembalikan stok aset
+            if ($asset && $locked->status === LoanStatus::Dipinjam) {
+                $asset->borrowed_quantity = max(0, $asset->borrowed_quantity - $locked->quantity);
+                $asset->syncStatus()->save();
+
+                // Kembalikan status item unit yang masih dipinjam
+                $items = $asset->items()->where('status', \App\Enums\AssetStatus::Dipinjam->value)->limit($locked->quantity)->get();
+                foreach ($items as $item) {
+                    $item->update(['status' => \App\Enums\AssetStatus::Tersedia]);
+                }
+            }
+
+            if ($asset) {
+                $this->log($asset, $user, 'delete_loan', (object) ['code' => $locked->code], "Data peminjaman {$locked->code} dihapus oleh ".($user?->name ?? 'Admin').'.');
+            }
+
+            $locked->delete();
+        });
+    }
+
+    public function bulkDeleteLoans(array $loanIds, ?User $user = null): int
+    {
+        $count = 0;
+        foreach ($loanIds as $id) {
+            $loan = AssetLoan::find($id);
+            if ($loan) {
+                $this->deleteLoan($loan, $user);
+                $count++;
+            }
+        }
+
+        return $count;
+    }
+
     public function log(Asset $asset, ?User $user, string $type, ?object $subject, string $description): void
     {
         AssetActivity::query()->create([

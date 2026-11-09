@@ -1,5 +1,16 @@
 <x-app-layout :title="'Rekapitulasi Kontrak / SPK - ' . ($category === 'engineering' ? 'Engineering' : 'AMDAL')" :subtitle="'Arsip dan dokumentasi surat perintah kerja divisi ' . ($category === 'engineering' ? 'Engineering' : 'AMDAL')" active="contracts">
-    <div class="space-y-4">
+    <div class="space-y-4"
+         x-data="{
+             selected: [],
+             allIds: {{ json_encode($contracts->pluck('id')) }},
+             toggleAll() {
+                 if (this.selected.length === this.allIds.length) {
+                     this.selected = [];
+                 } else {
+                     this.selected = [...this.allIds];
+                 }
+             }
+         }">
         {{-- Tab Navigasi Divisi / Kategori Kontrak --}}
         <div class="flex items-center gap-2 border-b border-line pb-1">
             <a href="{{ route('contracts.index', ['category' => 'amdal']) }}"
@@ -37,7 +48,7 @@
         </div>
 
         {{-- Baris Filter Pencarian Cepat --}}
-        <form method="GET" action="{{ route('contracts.index') }}" class="card p-3 sm:p-3.5">
+        <form method="GET" action="{{ route('contracts.index') }}" class="card p-3 sm:p-3.5 space-y-3">
             <input type="hidden" name="category" value="{{ $category }}">
 
             <div class="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-12">
@@ -86,8 +97,32 @@
                 </div>
             </div>
 
+            {{-- Bulk Actions Bar (Muncul Otomatis saat ada baris dicentang) --}}
+            <div x-show="selected.length > 0" x-cloak x-transition
+                 class="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-forest-900/5 border border-forest/20 p-2.5 sm:px-4">
+                <div class="flex items-center gap-2 text-xs font-semibold text-forest">
+                    <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-forest text-white text-[0.7rem] px-1.5" x-text="selected.length"></span>
+                    <span>data kontrak dipilih</span>
+                </div>
+
+                <form method="POST" action="{{ route('contracts.bulk-destroy') }}"
+                      data-confirm-title="Hapus Data Kontrak Terpilih?"
+                      :data-confirm-delete="'Apakah Anda yakin ingin menghapus ' + selected.length + ' data kontrak terpilih secara permanen?'"
+                      class="inline">
+                    @csrf
+                    @method('DELETE')
+                    <template x-for="id in selected" :key="id">
+                        <input type="hidden" name="ids[]" :value="id">
+                    </template>
+                    <button type="submit" class="btn-ghost text-red-600 hover:bg-red-50 text-xs py-1.5 px-3">
+                        <x-ui-icon name="trash" class="h-4 w-4" />
+                        <span>Hapus Terpilih (<span x-text="selected.length"></span>)</span>
+                    </button>
+                </form>
+            </div>
+
             {{-- Toolbar Tombol Export & Tombol Tunggal "Tambah Kontrak" --}}
-            <div class="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-line/70 pt-2.5">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-t border-line/70 pt-2.5">
                 <div class="flex items-center gap-2 text-xs text-ink-soft">
                     <span>Menampilkan <strong>{{ $contracts->total() }}</strong> data kontrak ({{ $category === 'engineering' ? 'Engineering' : 'AMDAL' }})</span>
                     @if ($search !== '' || $bank !== '' || $from !== '' || $to !== '')
@@ -118,7 +153,14 @@
                 <table class="w-full text-left text-[0.75rem] border-collapse">
                     <thead class="border-b border-line bg-[#0d4c1e]/90 text-white text-[0.68rem] uppercase font-semibold tracking-wider">
                         <tr>
-                            <th class="px-2.5 py-2.5 text-center" style="width: 44px;">No</th>
+                            <th class="px-2 py-2.5 text-center" style="width: 38px;">
+                                <input type="checkbox"
+                                       @change="toggleAll()"
+                                       :checked="allIds.length > 0 && selected.length === allIds.length"
+                                       class="rounded border-line text-forest focus:ring-forest cursor-pointer"
+                                       title="Pilih Semua">
+                            </th>
+                            <th class="px-2 py-2.5 text-center" style="width: 36px;">No</th>
                             <th class="px-3 py-2.5">No. SPK &amp; Tgl</th>
                             <th class="px-3 py-2.5">Proyek / Kegiatan</th>
                             <th class="px-3 py-2.5">Pihak Kedua &amp; Uraian</th>
@@ -132,9 +174,18 @@
                     </thead>
                     <tbody class="divide-y divide-line/60">
                         @forelse ($contracts as $item)
-                            <tr class="{{ $loop->even ? 'bg-[#f0f7f2]' : 'bg-white' }} hover:bg-[#dff0e3] transition-colors">
+                            <tr class="{{ $loop->even ? 'bg-[#f0f7f2]' : 'bg-white' }} hover:bg-[#dff0e3] transition-colors"
+                                :class="selected.includes({{ $item->id }}) ? '!bg-forest/10' : ''">
+                                {{-- Checkbox Baris --}}
+                                <td class="px-2 py-2 text-center">
+                                    <input type="checkbox"
+                                           :value="{{ $item->id }}"
+                                           x-model="selected"
+                                           class="rounded border-line text-forest focus:ring-forest cursor-pointer">
+                                </td>
+
                                 {{-- Nomor Urut Auto --}}
-                                <td class="px-2.5 py-2 text-center font-bold text-ink-soft">
+                                <td class="px-2 py-2 text-center font-bold text-ink-soft">
                                     {{ ($contracts->firstItem() ?? 1) + $loop->index }}
                                 </td>
 
@@ -189,7 +240,6 @@
                                 {{-- Dokumen Sumber (Teks Link & File Lampiran) --}}
                                 <td class="px-3 py-2 leading-tight">
                                     <div class="flex flex-col gap-1 max-w-[11rem]">
-                                        {{-- Teks/Link Input --}}
                                         @if ($item->source_document_text)
                                             @if ($item->isSourceTextUrl())
                                                 <a href="{{ $item->source_document_text }}" target="_blank" rel="noopener noreferrer"
@@ -205,7 +255,6 @@
                                             @endif
                                         @endif
 
-                                        {{-- File Upload Lampiran --}}
                                         @if ($item->source_document_path)
                                             <a href="{{ route('contracts.download', $item) }}"
                                                class="inline-flex items-center gap-1 rounded bg-white/80 border border-line px-1.5 py-0.5 text-[0.66rem] font-semibold text-forest hover:bg-forest/10 transition shadow-2xs"
@@ -236,25 +285,26 @@
                                             <x-ui-icon name="pencil" class="h-3.5 w-3.5" />
                                         </a>
 
-                                        {{-- Custom Delete Modal Trigger --}}
-                                        <form method="POST" action="{{ route('contracts.destroy', $item) }}"
-                                              data-confirm-title="Hapus Kontrak / SPK?"
-                                              data-confirm-delete="Apakah Anda yakin ingin menghapus data kontrak No. {{ $item->spk_number }} ({{ $item->project_name }})? Tindakan ini permanen."
-                                              class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                    class="rounded-md p-1 text-ink-soft hover:bg-red-50 hover:text-red-600 transition"
-                                                    title="Hapus Kontrak ini">
-                                                <x-ui-icon name="trash" class="h-3.5 w-3.5" />
-                                            </button>
-                                        </form>
+                                        @if (auth()->user()->isAdmin() || $item->user_id === auth()->id())
+                                            <form method="POST" action="{{ route('contracts.destroy', $item) }}"
+                                                  data-confirm-title="Hapus Kontrak / SPK?"
+                                                  data-confirm-delete="Apakah Anda yakin ingin menghapus data kontrak No. {{ $item->spk_number }} ({{ $item->project_name }})? Tindakan ini permanen."
+                                                  class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                        class="rounded-md p-1 text-ink-soft hover:bg-red-50 hover:text-red-600 transition"
+                                                        title="Hapus Kontrak ini">
+                                                    <x-ui-icon name="trash" class="h-3.5 w-3.5" />
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="py-10 text-center text-ink-soft bg-white">
+                                <td colspan="11" class="py-10 text-center text-ink-soft bg-white">
                                     <div class="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-canvas text-ink-soft mb-2">
                                         <x-ui-icon name="document" class="h-5 w-5 opacity-40" />
                                     </div>
