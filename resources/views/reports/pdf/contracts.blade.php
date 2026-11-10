@@ -70,7 +70,8 @@
                     <td class="center">
                         I: {{ $item->termin_1 }}%<br>
                         II: {{ $item->termin_2 }}%<br>
-                        III: {{ $item->termin_3 }}%
+                        III: {{ $item->termin_3 }}%<br>
+                        IV: {{ $item->termin_4 }}%
                     </td>
                     <td>
                         {{ $item->bank_name }}<br>

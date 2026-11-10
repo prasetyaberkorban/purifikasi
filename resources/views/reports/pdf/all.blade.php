@@ -375,7 +375,7 @@
                     </td>
                     <td class="right"><strong>{{ number_format($ca->contract_value, 0, ',', '.') }}</strong></td>
                     <td class="center">{{ $ca->duration_months }} Bln</td>
-                    <td class="center">{{ $ca->termin_1 }}% / {{ $ca->termin_2 }}% / {{ $ca->termin_3 }}%</td>
+                    <td class="center">{{ $ca->termin_1 }}% / {{ $ca->termin_2 }}% / {{ $ca->termin_3 }}% / {{ $ca->termin_4 }}%</td>
                     <td>
                         {{ $ca->bank_name }} - {{ $ca->bank_account_number }}<br>
                         <span class="muted">a.n {{ $ca->bank_account_holder }}</span>
@@ -416,7 +416,7 @@
                     </td>
                     <td class="right"><strong>{{ number_format($ce->contract_value, 0, ',', '.') }}</strong></td>
                     <td class="center">{{ $ce->duration_months }} Bln</td>
-                    <td class="center">{{ $ce->termin_1 }}% / {{ $ce->termin_2 }}% / {{ $ce->termin_3 }}%</td>
+                    <td class="center">{{ $ce->termin_1 }}% / {{ $ce->termin_2 }}% / {{ $ce->termin_3 }}% / {{ $ce->termin_4 }}%</td>
                     <td>
                         {{ $ce->bank_name }} - {{ $ce->bank_account_number }}<br>
                         <span class="muted">a.n {{ $ce->bank_account_holder }}</span>

@@ -447,7 +447,7 @@ class ExcelReportService
         $headers = [
             'No', 'No. SPK / PO', 'Tanggal SPK', 'Proyek / Kegiatan',
             'Nama Pihak Kedua', 'Jabatan / Uraian Pekerjaan', 'Nilai Kontrak (Rp)',
-            'Durasi (Bulan)', 'Termin I (%)', 'Termin II (%)', 'Termin III (%)',
+            'Durasi (Bulan)', 'Termin I (%)', 'Termin II (%)', 'Termin III (%)', 'Termin IV (%)',
             'Bank', 'Nomor Rekening', 'Atas Nama Rekening', 'Dokumen Teks / Link',
             'File Lampiran', 'Catatan Kontrak',
         ];
@@ -475,6 +475,7 @@ class ExcelReportService
                 $item->termin_1 > 0 ? $item->termin_1.'%' : '0%',
                 $item->termin_2 > 0 ? $item->termin_2.'%' : '0%',
                 $item->termin_3 > 0 ? $item->termin_3.'%' : '0%',
+                $item->termin_4 > 0 ? $item->termin_4.'%' : '0%',
                 $item->bank_name,
                 ' '.$item->bank_account_number,
                 $item->bank_account_holder,

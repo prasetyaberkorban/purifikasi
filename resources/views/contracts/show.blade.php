@@ -78,7 +78,7 @@
             {{-- Skema Termin Pembayaran --}}
             <div>
                 <p class="text-xs font-bold uppercase tracking-wider text-ink-soft mb-2">Skema Pembayaran Termin</p>
-                <div class="grid grid-cols-3 gap-3">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div class="rounded-xl border border-line bg-canvas/40 p-3.5 text-center">
                         <p class="text-[0.7rem] font-semibold text-ink-soft">Termin I</p>
                         <p class="mt-1 text-lg font-extrabold text-forest">{{ $contract->termin_1 }}%</p>
@@ -98,6 +98,13 @@
                         <p class="mt-1 text-lg font-extrabold text-forest">{{ $contract->termin_3 }}%</p>
                         <p class="mt-0.5 text-[0.7rem] text-ink-soft font-mono">
                             Rp {{ number_format(($contract->contract_value * $contract->termin_3) / 100, 0, ',', '.') }}
+                        </p>
+                    </div>
+                    <div class="rounded-xl border border-line bg-canvas/40 p-3.5 text-center">
+                        <p class="text-[0.7rem] font-semibold text-ink-soft">Termin IV</p>
+                        <p class="mt-1 text-lg font-extrabold text-forest">{{ $contract->termin_4 }}%</p>
+                        <p class="mt-0.5 text-[0.7rem] text-ink-soft font-mono">
+                            Rp {{ number_format(($contract->contract_value * $contract->termin_4) / 100, 0, ',', '.') }}
                         </p>
                     </div>
                 </div>

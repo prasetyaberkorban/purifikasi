@@ -217,10 +217,10 @@
                 </div>
             </div>
 
-            {{-- 5. Skema Termin I, II, III (%) --}}
+            {{-- 5. Skema Termin I, II, III, IV (%) --}}
             <div class="rounded-xl border border-line bg-canvas/60 p-4">
                 <label class="label mb-2 block font-bold text-ink">Skema Pembayaran Termin (%)</label>
-                <div class="grid gap-3 sm:grid-cols-3">
+                <div class="grid gap-3 sm:grid-cols-4">
                     <div>
                         <label for="termin_1" class="text-[0.72rem] font-semibold text-ink-soft">9. Termin I (%)</label>
                         <div class="relative mt-1">
@@ -248,6 +248,15 @@
                             <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-ink-soft">%</span>
                         </div>
                     </div>
+                    <div>
+                        <label for="termin_4" class="text-[0.72rem] font-semibold text-ink-soft">12. Termin IV (%)</label>
+                        <div class="relative mt-1">
+                            <input id="termin_4" type="number" step="0.01" min="0" max="100" name="termin_4"
+                                   value="{{ old('termin_4', $contract->termin_4) }}"
+                                   class="field pr-8 text-xs font-semibold">
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-ink-soft">%</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -255,7 +264,7 @@
             <div class="grid gap-4 sm:grid-cols-3">
                 <div>
                     <label for="bank_name" class="label">
-                        12. Bank <span class="text-red-500">*</span>
+                        13. Bank <span class="text-red-500">*</span>
                     </label>
                     <input id="bank_name" type="text" name="bank_name" value="{{ old('bank_name', $contract->bank_name) }}"
                            required
@@ -267,7 +276,7 @@
 
                 <div>
                     <label for="bank_account_number" class="label">
-                        13. Nomor Rekening <span class="text-red-500">*</span>
+                        14. Nomor Rekening <span class="text-red-500">*</span>
                     </label>
                     <input id="bank_account_number" type="text" name="bank_account_number" value="{{ old('bank_account_number', $contract->bank_account_number) }}"
                            required
@@ -279,7 +288,7 @@
 
                 <div>
                     <label for="bank_account_holder" class="label">
-                        14. Atas Nama Rekening <span class="text-red-500">*</span>
+                        15. Atas Nama Rekening <span class="text-red-500">*</span>
                     </label>
                     <input id="bank_account_holder" type="text" name="bank_account_holder" value="{{ old('bank_account_holder', $contract->bank_account_holder) }}"
                            required
@@ -293,7 +302,7 @@
             {{-- 7. Catatan Kontrak (Opsional) --}}
             <div>
                 <label for="contract_notes" class="label">
-                    15. Catatan Kontrak <span class="text-ink-soft text-xs font-normal">(Opsional)</span>
+                    16. Catatan Kontrak <span class="text-ink-soft text-xs font-normal">(Opsional)</span>
                 </label>
                 <textarea id="contract_notes" name="contract_notes" rows="2"
                           class="field">{{ old('contract_notes', $contract->contract_notes) }}</textarea>
@@ -302,7 +311,7 @@
             {{-- 8. Dokumen Sumber --}}
             <div class="rounded-xl border border-line bg-canvas/40 p-4 space-y-3">
                 <label class="label block font-bold text-ink">
-                    16. Dokumen Sumber
+                    17. Dokumen Sumber
                 </label>
 
                 {{-- Teks Input --}}

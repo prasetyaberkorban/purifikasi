@@ -28,6 +28,7 @@ class ProjectContract extends Model
         'termin_1',
         'termin_2',
         'termin_3',
+        'termin_4',
         'bank_name',
         'bank_account_number',
         'bank_account_holder',
@@ -46,6 +47,7 @@ class ProjectContract extends Model
             'termin_1' => 'float',
             'termin_2' => 'float',
             'termin_3' => 'float',
+            'termin_4' => 'float',
         ];
     }
 

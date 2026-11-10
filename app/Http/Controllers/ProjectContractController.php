@@ -16,6 +16,7 @@ class ProjectContractController extends Controller
     public function index(Request $request): View
     {
         $this->ensureCategoryColumnExists();
+        $this->ensureTermin4ColumnExists();
 
         $category = $this->resolveCategory($request);
         $query = $this->buildQuery($request, $category);
@@ -38,6 +39,7 @@ class ProjectContractController extends Controller
     public function create(Request $request): View
     {
         $this->ensureCategoryColumnExists();
+        $this->ensureTermin4ColumnExists();
 
         $category = $this->resolveCategory($request);
         $stickyProject = old('project_name', session("last_project_name_{$category}", ''));
@@ -60,6 +62,7 @@ class ProjectContractController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $this->ensureCategoryColumnExists();
+        $this->ensureTermin4ColumnExists();
 
         // Bersihkan format rupiah jika string mengandung titik/koma
         if ($request->has('contract_value')) {
@@ -79,6 +82,7 @@ class ProjectContractController extends Controller
             'termin_1' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'termin_2' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'termin_3' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'termin_4' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'bank_name' => ['required', 'string', 'max:255'],
             'bank_account_number' => ['required', 'string', 'max:255'],
             'bank_account_holder' => ['required', 'string', 'max:255'],
@@ -113,6 +117,7 @@ class ProjectContractController extends Controller
             'termin_1' => $validated['termin_1'] ?? 0,
             'termin_2' => $validated['termin_2'] ?? 0,
             'termin_3' => $validated['termin_3'] ?? 0,
+            'termin_4' => $validated['termin_4'] ?? 0,
             'bank_name' => $validated['bank_name'],
             'bank_account_number' => $validated['bank_account_number'],
             'bank_account_holder' => $validated['bank_account_holder'],
@@ -177,6 +182,7 @@ class ProjectContractController extends Controller
             'termin_1' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'termin_2' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'termin_3' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'termin_4' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'bank_name' => ['required', 'string', 'max:255'],
             'bank_account_number' => ['required', 'string', 'max:255'],
             'bank_account_holder' => ['required', 'string', 'max:255'],
@@ -216,6 +222,7 @@ class ProjectContractController extends Controller
             'termin_1' => $validated['termin_1'] ?? 0,
             'termin_2' => $validated['termin_2'] ?? 0,
             'termin_3' => $validated['termin_3'] ?? 0,
+            'termin_4' => $validated['termin_4'] ?? 0,
             'bank_name' => $validated['bank_name'],
             'bank_account_number' => $validated['bank_account_number'],
             'bank_account_holder' => $validated['bank_account_holder'],
@@ -390,6 +397,15 @@ class ProjectContractController extends Controller
         if (Schema::hasTable('project_contracts') && ! Schema::hasColumn('project_contracts', 'category')) {
             Schema::table('project_contracts', function (Blueprint $table) {
                 $table->string('category', 50)->default('amdal')->index()->after('id');
+            });
+        }
+    }
+
+    private function ensureTermin4ColumnExists(): void
+    {
+        if (Schema::hasTable('project_contracts') && ! Schema::hasColumn('project_contracts', 'termin_4')) {
+            Schema::table('project_contracts', function (Blueprint $table) {
+                $table->decimal('termin_4', 6, 2)->nullable()->default(0)->after('termin_3');
             });
         }
     }

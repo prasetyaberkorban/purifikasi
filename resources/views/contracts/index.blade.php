@@ -222,12 +222,13 @@
                                     <span class="text-[0.66rem] text-ink-soft">Bln</span>
                                 </td>
 
-                                {{-- Termin I, II, III (%) --}}
+                                {{-- Termin I, II, III, IV (%) --}}
                                 <td class="px-2.5 py-2 text-center whitespace-nowrap text-[0.66rem] leading-tight">
                                     <div class="inline-flex items-center gap-1 font-mono">
                                         <span class="rounded bg-black/5 px-1 py-0.5">I:{{ $item->termin_1 }}%</span>
                                         <span class="rounded bg-black/5 px-1 py-0.5">II:{{ $item->termin_2 }}%</span>
                                         <span class="rounded bg-black/5 px-1 py-0.5">III:{{ $item->termin_3 }}%</span>
+                                        <span class="rounded bg-black/5 px-1 py-0.5">IV:{{ $item->termin_4 }}%</span>
                                     </div>
                                 </td>
 
