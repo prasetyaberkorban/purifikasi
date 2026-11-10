@@ -159,7 +159,7 @@ class ExcelReportService
     {
         $sheet->setTitle('Inventaris');
 
-        $headers = ['Kode Aset', 'Nama Barang', 'Kategori', 'Ruangan', 'Stok', 'Dipinjam', 'Tersedia', 'Nilai Total'];
+        $headers = ['Kode Aset', 'Nama Barang', 'Cabang', 'Kategori', 'Ruangan', 'Stok', 'Dipinjam', 'Tersedia', 'Nilai Total'];
 
         $this->writeHeader($sheet, 'LAPORAN INVENTARIS ASET', $headers);
         $this->writeFilters($sheet, count($headers), $filters, [
@@ -172,6 +172,7 @@ class ExcelReportService
             $sheet->fromArray([
                 $asset->code,
                 $asset->name,
+                $asset->branch ?? 'Semarang 1',
                 $asset->category?->name,
                 $asset->items->pluck('room')->filter()->unique()->implode(', ') ?: ($asset->room ?? '-'),
                 $asset->quantity,
@@ -184,7 +185,7 @@ class ExcelReportService
         }
 
         $this->styleBody($sheet, 4, $rowNumber - 1, count($headers));
-        $sheet->getStyle('H4:H'.max(4, $rowNumber - 1))->getNumberFormat()->setFormatCode('#,##0');
+        $sheet->getStyle('I4:I'.max(4, $rowNumber - 1))->getNumberFormat()->setFormatCode('#,##0');
         $sheet->freezePane('A4');
     }
 

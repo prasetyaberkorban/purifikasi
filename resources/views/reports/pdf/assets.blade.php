@@ -36,6 +36,7 @@
             <tr>
                 <th>Kode Aset</th>
                 <th>Nama Barang</th>
+                <th>Cabang</th>
                 <th>Kategori</th>
                 <th>Ruangan</th>
                 <th class="right">Stok</th>
@@ -51,6 +52,7 @@
                 <tr>
                     <td>{{ $asset->code }}</td>
                     <td>{{ $asset->name }}</td>
+                    <td>{{ $asset->branch ?? 'Semarang 1' }}</td>
                     <td>{{ $asset->category?->name }}</td>
                     <td>
                         @php

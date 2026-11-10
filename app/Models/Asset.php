@@ -16,7 +16,7 @@ class Asset extends Model
     use HasFactory;
 
     protected $fillable = [
-        'code', 'name', 'serial_number', 'brand', 'category_id', 'location_id', 'room',
+        'code', 'name', 'branch', 'serial_number', 'brand', 'category_id', 'location_id', 'room',
         'owner_unit', 'quantity', 'minimum_stock', 'borrowed_quantity', 'status', 'condition',
         'purchase_date', 'purchase_price', 'photo_path', 'description', 'last_checked_at',
     ];
@@ -161,15 +161,30 @@ class Asset extends Model
         return (float) (($this->purchase_price ?? 0) * ($this->quantity ?? 1));
     }
 
-    /** Prefix kode aset: SMG.KODE/2026 */
-    public static function codePrefix(Category $category, ?Location $location = null): string
+    public static function branchCode(?string $branch): string
     {
-        return sprintf('SMG.%s/%s', Str::upper($category->code), now()->format('Y'));
+        return match (trim((string) $branch)) {
+            'Semarang 1' => 'SMG1',
+            'Semarang 2' => 'SMG2',
+            'Bandung' => 'BDG',
+            'SMG1' => 'SMG1',
+            'SMG2' => 'SMG2',
+            'BDG' => 'BDG',
+            default => 'SMG1',
+        };
     }
 
-    public static function nextCode(Category $category, ?Location $location = null): string
+    /** Prefix kode aset: [CABANG].[KATEGORI]/[TAHUN] (contoh SMG1.PL/2026) */
+    public static function codePrefix(Category $category, ?string $branch = null, ?Location $location = null): string
     {
-        $prefix = self::codePrefix($category, $location).'/';
+        $branchCode = self::branchCode($branch);
+
+        return sprintf('%s.%s/%s', $branchCode, Str::upper($category->code), now()->format('Y'));
+    }
+
+    public static function nextCode(Category $category, ?string $branch = null, ?Location $location = null): string
+    {
+        $prefix = self::codePrefix($category, $branch, $location).'/';
         $last = self::query()->where('code', 'like', $prefix.'%')->orderByDesc('id')->value('code');
         $sequence = $last ? ((int) Str::afterLast($last, '/')) + 1 : 1;
 
@@ -187,6 +202,7 @@ class Asset extends Model
         return $query->where(function (Builder $q) use ($term) {
             $q->where('name', 'like', "%{$term}%")
                 ->orWhere('code', 'like', "%{$term}%")
+                ->orWhere('branch', 'like', "%{$term}%")
                 ->orWhere('serial_number', 'like', "%{$term}%")
                 ->orWhere('brand', 'like', "%{$term}%")
                 ->orWhereHas('category', fn (Builder $c) => $c->where('name', 'like', "%{$term}%"))

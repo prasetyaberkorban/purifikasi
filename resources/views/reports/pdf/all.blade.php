@@ -122,6 +122,7 @@
             <tr>
                 <th style="width: 70px;">Kode</th>
                 <th>Nama Barang</th>
+                <th>Cabang</th>
                 <th>Kategori</th>
                 <th>Ruangan</th>
                 <th class="center" style="width: 45px;">Stok</th>
@@ -135,6 +136,7 @@
                 <tr>
                     <td><strong>{{ $a->code }}</strong></td>
                     <td>{{ $a->name }}</td>
+                    <td>{{ $a->branch ?? 'Semarang 1' }}</td>
                     <td>{{ $a->category?->name ?? '-' }}</td>
                     <td>{{ $a->items->pluck('room')->filter()->unique()->implode(', ') ?: ($a->room ?? '-') }}</td>
                     <td class="center">{{ $a->quantity }}</td>

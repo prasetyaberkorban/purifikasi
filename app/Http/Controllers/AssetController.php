@@ -20,6 +20,7 @@ class AssetController extends Controller
     {
         $filters = [
             'q' => $request->string('q')->toString(),
+            'branch' => $request->string('branch')->toString(),
             'category' => $request->string('category')->toString(),
             'location' => $request->string('location')->toString(),
             'status' => $request->string('status')->toString(),
@@ -31,6 +32,7 @@ class AssetController extends Controller
         $assets = Asset::query()
             ->with(['category', 'location'])
             ->search($filters['q'])
+            ->when($filters['branch'] !== '', fn ($q) => $q->where('branch', $filters['branch']))
             ->when($filters['category'] !== '', fn ($q) => $q->where('category_id', $filters['category']))
             ->when($filters['location'] !== '', fn ($q) => $q->where('location_id', $filters['location']))
             ->when($filters['status'] !== '', fn ($q) => $q->where('status', $filters['status']))
@@ -58,7 +60,11 @@ class AssetController extends Controller
 
     public function create(Request $request): View
     {
-        $asset = new Asset(['quantity' => 1, 'minimum_stock' => (int) \App\Models\Setting::get('low_stock_threshold', '3')]);
+        $asset = new Asset([
+            'quantity' => 1,
+            'branch' => $request->string('branch', 'Semarang 1')->toString(),
+            'minimum_stock' => (int) \App\Models\Setting::get('low_stock_threshold', '3'),
+        ]);
 
         return view('assets.create', [
             'asset' => $asset,
@@ -81,7 +87,7 @@ class AssetController extends Controller
         $location = filled($data['location_id'] ?? null) ? Location::query()->find($data['location_id']) : null;
 
         $asset = new Asset($data);
-        $asset->code = ($data['code'] ?? null) ?: Asset::nextCode($category, $location);
+        $asset->code = ($data['code'] ?? null) ?: Asset::nextCode($category, $data['branch'] ?? null, $location);
         $asset->condition = AssetCondition::from($data['condition']);
         $asset->borrowed_quantity = 0;
 
@@ -129,7 +135,7 @@ class AssetController extends Controller
     {
         $data = $request->safe()->except(['photo', 'remove_photo', 'code']);
 
-        $before = $asset->only(['name', 'quantity', 'condition', 'location_id', 'room']);
+        $before = $asset->only(['name', 'branch', 'quantity', 'condition', 'location_id', 'room']);
 
         if ($request->boolean('remove_photo') && $asset->photo_path) {
             Storage::disk('public')->delete($asset->photo_path);
@@ -153,7 +159,7 @@ class AssetController extends Controller
 
         $asset->fill($data)->syncStatus()->save();
 
-        $changes = collect($asset->only(['name', 'quantity', 'condition', 'location_id', 'room']))
+        $changes = collect($asset->only(['name', 'branch', 'quantity', 'condition', 'location_id', 'room']))
             ->filter(fn ($value, $key) => (string) $value !== (string) ($before[$key] ?? ''))
             ->keys();
 

@@ -14,11 +14,21 @@
                     <div class="min-w-0 flex-1">
                         <div class="flex flex-wrap items-center gap-2">
                             <x-status-badge :status="$asset->status" />
+                            <span class="inline-flex items-center gap-1 rounded-full bg-forest/10 px-2.5 py-0.5 text-xs font-semibold text-forest">
+                                <svg class="h-3 w-3 text-leaf" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                </svg>
+                                {{ $asset->branch ?? 'Semarang 1' }}
+                            </span>
                         </div>
                         <h2 class="mt-2 text-xl font-bold text-ink">{{ $asset->name }}</h2>
                         <p class="font-mono text-[0.75rem] text-ink-soft">{{ $asset->code }}</p>
 
-                        <dl class="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-[0.78rem] sm:grid-cols-2">
+                        <dl class="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-[0.78rem] sm:grid-cols-3">
+                            <div>
+                                <dt class="text-ink-soft">Cabang</dt>
+                                <dd class="font-semibold text-ink">{{ $asset->branch ?? 'Semarang 1' }}</dd>
+                            </div>
                             <div>
                                 <dt class="text-ink-soft">Kategori</dt>
                                 <dd class="font-semibold text-ink">{{ $asset->category?->name ?? '-' }}</dd>

@@ -22,7 +22,7 @@
         </div>
         <a href="{{ route('assets.show', $asset) }}" class="mt-1 line-clamp-2 text-sm font-bold text-ink hover:text-forest">{{ $asset->name }}</a>
         <p class="mt-1 text-[0.72rem] text-ink-soft">
-            {{ $asset->category?->name ?? '-' }} &middot; Stok {{ $asset->availableQuantity() }}/{{ $asset->quantity }}
+            <span class="font-semibold text-forest">{{ $asset->branch ?? 'Semarang 1' }}</span> &middot; {{ $asset->category?->name ?? '-' }} &middot; Stok {{ $asset->availableQuantity() }}/{{ $asset->quantity }}
         </p>
 
         <div class="mt-3 grid grid-cols-2 gap-1.5">

@@ -42,14 +42,22 @@
     {{-- Filter --}}
     <form method="GET" action="{{ route('assets.index') }}" class="card mt-4 p-3.5 sm:p-4" x-data="{ advanced: false }">
         <div class="grid gap-2.5 lg:grid-cols-12">
-            <div class="relative lg:col-span-5">
+            <div class="relative lg:col-span-4">
                 <span class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-slate-400">
                     <x-ui-icon name="filter" class="h-4 w-4" />
                 </span>
                 <input type="search" name="q" value="{{ $filters['q'] }}" class="field pl-9"
                        placeholder="Cari aset, lokasi, kategori, atau kode...">
             </div>
-            <div class="lg:col-span-3">
+            <div class="lg:col-span-2">
+                <select name="branch" class="field" aria-label="Filter cabang">
+                    <option value="">Semua Cabang</option>
+                    @foreach (['Semarang 1', 'Semarang 2', 'Bandung'] as $b)
+                        <option value="{{ $b }}" @selected(($filters['branch'] ?? '') === $b)>{{ $b }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="lg:col-span-2">
                 <select name="category" class="field" aria-label="Filter kategori">
                     <option value="">Semua Kategori</option>
                     @foreach ($categories as $category)
@@ -160,6 +168,7 @@
                         @endif
                         <th scope="col">Kode Aset</th>
                         <th scope="col">Nama Barang</th>
+                        <th scope="col">Cabang</th>
                         <th scope="col">Kategori</th>
                         <th scope="col">Stok</th>
                         <th scope="col">Status</th>
@@ -180,6 +189,11 @@
                             <td class="font-mono text-[0.72rem] text-ink-soft">{{ $asset->code }}</td>
                             <td>
                                 <a href="{{ route('assets.show', $asset) }}" class="font-semibold text-ink hover:text-forest">{{ $asset->name }}</a>
+                            </td>
+                            <td>
+                                <span class="inline-flex items-center gap-1 rounded-md bg-leaf-50 px-2 py-0.5 text-xs font-semibold text-forest">
+                                    {{ $asset->branch ?? 'Semarang 1' }}
+                                </span>
                             </td>
                             <td class="text-ink-soft">{{ $asset->category?->name }}</td>
                             <td>
@@ -214,7 +228,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ auth()->user()->isAdmin() ? 7 : 6 }}" class="py-10 text-center text-ink-soft">
+                            <td colspan="{{ auth()->user()->isAdmin() ? 8 : 7 }}" class="py-10 text-center text-ink-soft">
                                 Tidak ada aset yang cocok dengan filter.
                             </td>
                         </tr>

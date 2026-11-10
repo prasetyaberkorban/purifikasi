@@ -21,6 +21,7 @@ class AssetRequest extends FormRequest
         return [
             'code' => ['nullable', 'string', 'max:48', Rule::unique('assets', 'code')->ignore($assetId)],
             'name' => ['required', 'string', 'max:120'],
+            'branch' => ['required', 'string', Rule::in(['Semarang 1', 'Semarang 2', 'Bandung'])],
             'serial_number' => ['nullable', 'string', 'max:120'],
             'brand' => ['nullable', 'string', 'max:80'],
             'category_id' => ['required', 'exists:categories,id'],
@@ -43,6 +44,7 @@ class AssetRequest extends FormRequest
     {
         return [
             'name' => 'nama barang',
+            'branch' => 'cabang',
             'serial_number' => 'serial number',
             'category_id' => 'kategori',
             'location_id' => 'lokasi',
