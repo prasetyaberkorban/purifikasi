@@ -13,7 +13,10 @@ use App\Models\PertaminaRefTahapPraKontrak;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class PertaminaProjectController extends Controller
 {
@@ -204,6 +207,8 @@ class PertaminaProjectController extends Controller
      */
     public function storeProject(Request $request): RedirectResponse
     {
+        $this->ensureTablesSeeded();
+
         if ($request->has('nilai_project')) {
             $clean = preg_replace('/[^0-9]/', '', (string) $request->input('nilai_project'));
             $request->merge(['nilai_project' => $clean !== '' ? (float) $clean : 0]);
@@ -496,8 +501,28 @@ class PertaminaProjectController extends Controller
      */
     private function ensureTablesSeeded(): void
     {
-        if (PertaminaProject::count() === 0) {
-            app(\Database\Seeders\PertaminaProjectSeeder::class)->run();
+        try {
+            if (! Schema::hasTable('pertamina_projects')) {
+                // Jalankan migrate artisan secara terprogram
+                Artisan::call('migrate', ['--force' => true]);
+
+                // Fallback jika belum terbuat, jalankan instance migration langsung
+                if (! Schema::hasTable('pertamina_projects')) {
+                    $migrationFile = database_path('migrations/2026_11_11_000100_create_pertamina_project_tables.php');
+                    if (file_exists($migrationFile)) {
+                        $migration = require $migrationFile;
+                        if (is_object($migration) && method_exists($migration, 'up')) {
+                            $migration->up();
+                        }
+                    }
+                }
+            }
+
+            if (Schema::hasTable('pertamina_projects') && PertaminaProject::count() === 0) {
+                app(\Database\Seeders\PertaminaProjectSeeder::class)->run();
+            }
+        } catch (\Throwable $e) {
+            Log::error('Auto-migration / seed Pertamina failed: ' . $e->getMessage());
         }
     }
 }
