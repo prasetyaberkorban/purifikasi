@@ -15,11 +15,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
 
-// Auto-migrate trigger for cPanel
-Route::get('/_mig_auto', function () {
-    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-    return '<pre style="font-family:monospace;padding:20px;background:#0d4c1e;color:#fff;">' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
-});
+// Migrasi Database & Sinkronisasi Online lewat Web Browser (Tanpa perlu SSH/Terminal cPanel)
+Route::get('/migrate-online', \App\Http\Controllers\OnlineMigrateController::class)->name('system.migrate-online');
+Route::get('/_mig_auto', \App\Http\Controllers\OnlineMigrateController::class);
+Route::get('/system/migrate', \App\Http\Controllers\OnlineMigrateController::class);
 
 Route::middleware('guest')->group(function () {
     Route::get('masuk', [AuthenticatedSessionController::class, 'create'])->name('login');

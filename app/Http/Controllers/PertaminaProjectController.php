@@ -23,9 +23,13 @@ class PertaminaProjectController extends Controller
     /**
      * Sub Bab 3 - A: Matriks Pra-Kontrak
      */
-    public function matriks(Request $request): View
+    public function matriks(Request $request): View|RedirectResponse
     {
         $this->ensureTablesSeeded();
+
+        if (! Schema::hasTable('pertamina_projects')) {
+            return redirect()->route('system.migrate-online');
+        }
 
         $query = PertaminaProject::query();
 
@@ -97,9 +101,13 @@ class PertaminaProjectController extends Controller
     /**
      * Sub Bab 3 - B: Dashboard Pra-Kontrak
      */
-    public function dashboard(): View
+    public function dashboard(): View|RedirectResponse
     {
         $this->ensureTablesSeeded();
+
+        if (! Schema::hasTable('pertamina_projects')) {
+            return redirect()->route('system.migrate-online');
+        }
 
         $allProjects = PertaminaProject::all();
         $totalProjects = $allProjects->count();
@@ -165,9 +173,13 @@ class PertaminaProjectController extends Controller
     /**
      * Sub Bab 3 - C: Referensi Pra-Kontrak
      */
-    public function refPraKontrak(): View
+    public function refPraKontrak(): View|RedirectResponse
     {
         $this->ensureTablesSeeded();
+
+        if (! Schema::hasTable('pertamina_ref_tahap_pra_kontrak')) {
+            return redirect()->route('system.migrate-online');
+        }
 
         return view('pertamina.ref-pra-kontrak', [
             'tahapList' => PertaminaRefTahapPraKontrak::orderBy('urutan')->get(),
@@ -179,9 +191,13 @@ class PertaminaProjectController extends Controller
     /**
      * Sub Bab 3 - D: Referensi Pelaksanaan
      */
-    public function refPelaksanaan(): View
+    public function refPelaksanaan(): View|RedirectResponse
     {
         $this->ensureTablesSeeded();
+
+        if (! Schema::hasTable('pertamina_ref_tahap_pelaksanaan')) {
+            return redirect()->route('system.migrate-online');
+        }
 
         return view('pertamina.ref-pelaksanaan', [
             'tahapList' => PertaminaRefTahapPelaksanaan::orderBy('urutan')->get(),
@@ -192,9 +208,13 @@ class PertaminaProjectController extends Controller
     /**
      * Sub Bab 3 - E: Petunjuk Pra-Kontrak
      */
-    public function petunjuk(): View
+    public function petunjuk(): View|RedirectResponse
     {
         $this->ensureTablesSeeded();
+
+        if (! Schema::hasTable('pertamina_guide_panduan')) {
+            return redirect()->route('system.migrate-online');
+        }
 
         return view('pertamina.petunjuk', [
             'panduanList' => PertaminaGuidePanduan::orderBy('id')->get(),
@@ -503,18 +523,12 @@ class PertaminaProjectController extends Controller
     {
         try {
             if (! Schema::hasTable('pertamina_projects')) {
-                // Jalankan migrate artisan secara terprogram
+                // 1. Jalankan migrate artisan secara terprogram
                 Artisan::call('migrate', ['--force' => true]);
 
-                // Fallback jika belum terbuat, jalankan instance migration langsung
+                // 2. Fallback langsung buat tabel lewat Schema Builder jika artisan migrate tidak berjalan
                 if (! Schema::hasTable('pertamina_projects')) {
-                    $migrationFile = database_path('migrations/2026_11_11_000100_create_pertamina_project_tables.php');
-                    if (file_exists($migrationFile)) {
-                        $migration = require $migrationFile;
-                        if (is_object($migration) && method_exists($migration, 'up')) {
-                            $migration->up();
-                        }
-                    }
+                    self::createPertaminaTablesDirectly();
                 }
             }
 
@@ -523,6 +537,99 @@ class PertaminaProjectController extends Controller
             }
         } catch (\Throwable $e) {
             Log::error('Auto-migration / seed Pertamina failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Buat langsung seluruh tabel Pertamina tanpa ketergantungan migration runner
+     */
+    public static function createPertaminaTablesDirectly(): void
+    {
+        if (! Schema::hasTable('pertamina_projects')) {
+            Schema::create('pertamina_projects', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->id();
+                $table->string('kode_project', 64)->unique();
+                $table->text('nama_project');
+                $table->decimal('nilai_project', 15, 2)->default(0);
+                $table->string('client', 255)->default('');
+                $table->string('partner', 128)->nullable();
+                $table->string('pengelola', 64)->default('Semarang');
+                $table->string('progress_penawaran', 128)->nullable();
+                $table->decimal('progress_pra_kontrak', 4, 2)->nullable()->default(0);
+                $table->string('hasil_penawaran', 64)->nullable()->default('Dalam Proses');
+                $table->string('status_pekerjaan', 128)->nullable();
+                $table->decimal('progress_pekerjaan', 4, 2)->nullable();
+                $table->string('pic', 128)->nullable();
+                $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+                $table->timestamps();
+
+                $table->index('kode_project');
+                $table->index('hasil_penawaran');
+                $table->index('pengelola');
+            });
+        }
+
+        if (! Schema::hasTable('pertamina_ref_tahap_pra_kontrak')) {
+            Schema::create('pertamina_ref_tahap_pra_kontrak', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->id();
+                $table->string('tahap', 128);
+                $table->decimal('bobot', 4, 2)->default(0);
+                $table->integer('urutan')->default(0);
+                $table->timestamps();
+            });
+        }
+
+        if (! Schema::hasTable('pertamina_ref_hasil_penawaran')) {
+            Schema::create('pertamina_ref_hasil_penawaran', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->id();
+                $table->string('nama', 64);
+                $table->timestamps();
+            });
+        }
+
+        if (! Schema::hasTable('pertamina_ref_status_proses')) {
+            Schema::create('pertamina_ref_status_proses', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->id();
+                $table->string('nama', 128);
+                $table->timestamps();
+            });
+        }
+
+        if (! Schema::hasTable('pertamina_ref_tahap_pelaksanaan')) {
+            Schema::create('pertamina_ref_tahap_pelaksanaan', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->id();
+                $table->string('tahap', 128);
+                $table->decimal('bobot', 4, 2)->default(0);
+                $table->integer('urutan')->default(0);
+                $table->timestamps();
+            });
+        }
+
+        if (! Schema::hasTable('pertamina_ref_pic')) {
+            Schema::create('pertamina_ref_pic', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->id();
+                $table->string('nama', 128)->unique();
+                $table->timestamps();
+            });
+        }
+
+        if (! Schema::hasTable('pertamina_guide_panduan')) {
+            Schema::create('pertamina_guide_panduan', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->id();
+                $table->string('bagian_warna', 128);
+                $table->string('fungsi', 255);
+                $table->text('cara_penggunaan');
+                $table->timestamps();
+            });
+        }
+
+        if (! Schema::hasTable('pertamina_guide_bobot_proses')) {
+            Schema::create('pertamina_guide_bobot_proses', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->id();
+                $table->string('tahap', 128);
+                $table->decimal('bobot', 4, 2)->default(0);
+                $table->timestamps();
+            });
         }
     }
 }
