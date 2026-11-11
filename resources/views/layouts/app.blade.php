@@ -54,13 +54,44 @@
                             </button>
                             <ul id="submenu-{{ $item['key'] }}" x-show="open" x-collapse class="mt-1 space-y-1 pl-4">
                                 @foreach ($item['children'] as $child)
-                                    <li>
-                                        <a href="{{ $child['route'] }}"
-                                           class="nav-link py-2 text-[0.83rem] {{ (!empty($child['is_active']) || request()->routeIs($child['active'])) ? 'nav-link-active' : '' }}">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-current opacity-60"></span>
-                                            {{ $child['label'] }}
-                                        </a>
-                                    </li>
+                                    @php
+                                        $hasSubChildren = ! empty($child['children']);
+                                        $childActive = ! empty($child['is_active']) || (is_array($child['active'] ?? null) && collect($child['active'])->contains(fn ($p) => request()->routeIs($p)));
+                                    @endphp
+                                    @if ($hasSubChildren)
+                                        <li x-data="{ openSub: {{ $childActive ? 'true' : 'false' }} }">
+                                            <button type="button" @click="openSub = !openSub"
+                                                    class="nav-link w-full justify-between py-1.5 text-[0.8rem] {{ $childActive ? 'text-white font-bold' : '' }}">
+                                                <span class="flex items-center gap-2">
+                                                    <span class="h-1.5 w-1.5 rounded-full bg-current opacity-70"></span>
+                                                    {{ $child['label'] }}
+                                                </span>
+                                                <svg class="h-3.5 w-3.5 transition-transform" :class="openSub ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+                                            </button>
+                                            <ul x-show="openSub" x-collapse class="mt-1 space-y-1 pl-3 border-l border-white/10 ml-2">
+                                                @foreach ($child['children'] as $sub)
+                                                    @php
+                                                        $subActive = ! empty($sub['is_active']) || (is_array($sub['active'] ?? null) && collect($sub['active'])->contains(fn ($p) => request()->routeIs($p)));
+                                                    @endphp
+                                                    <li>
+                                                        <a href="{{ $sub['route'] }}"
+                                                           class="nav-link py-1.5 text-[0.76rem] {{ $subActive ? 'nav-link-active' : '' }}">
+                                                            <span class="h-1 w-1 rounded-full bg-current opacity-60"></span>
+                                                            {{ $sub['label'] }}
+                                                        </a>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </li>
+                                    @else
+                                        <li>
+                                            <a href="{{ $child['route'] }}"
+                                               class="nav-link py-2 text-[0.83rem] {{ (!empty($child['is_active']) || request()->routeIs($child['active'])) ? 'nav-link-active' : '' }}">
+                                                <span class="h-1.5 w-1.5 rounded-full bg-current opacity-60"></span>
+                                                {{ $child['label'] }}
+                                            </a>
+                                        </li>
+                                    @endif
                                 @endforeach
                             </ul>
                         @else

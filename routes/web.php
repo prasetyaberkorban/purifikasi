@@ -156,6 +156,22 @@ Route::middleware(['auth', 'role'])->group(function () {
     Route::delete('kontrak/{contract}', [\App\Http\Controllers\ProjectContractController::class, 'destroy'])->name('contracts.destroy');
     Route::get('kontrak/{contract}/unduh', [\App\Http\Controllers\ProjectContractController::class, 'download'])->name('contracts.download');
 
+    // Manajemen Proyek - Rekap Project Pertamina Penawaran
+    Route::get('manajemen-proyek/pertamina', fn () => redirect()->route('pertamina.matriks'))->name('pertamina.index');
+    Route::get('manajemen-proyek/pertamina/matriks', [\App\Http\Controllers\PertaminaProjectController::class, 'matriks'])->name('pertamina.matriks');
+    Route::post('manajemen-proyek/pertamina/matriks', [\App\Http\Controllers\PertaminaProjectController::class, 'storeProject'])->name('pertamina.projects.store');
+    Route::put('manajemen-proyek/pertamina/matriks/{project}', [\App\Http\Controllers\PertaminaProjectController::class, 'updateProject'])->name('pertamina.projects.update');
+    Route::delete('manajemen-proyek/pertamina/matriks/{project}', [\App\Http\Controllers\PertaminaProjectController::class, 'destroyProject'])->name('pertamina.projects.destroy');
+
+    Route::get('manajemen-proyek/pertamina/dashboard', [\App\Http\Controllers\PertaminaProjectController::class, 'dashboard'])->name('pertamina.dashboard');
+    Route::get('manajemen-proyek/pertamina/ref-pra-kontrak', [\App\Http\Controllers\PertaminaProjectController::class, 'refPraKontrak'])->name('pertamina.ref-pra-kontrak');
+    Route::get('manajemen-proyek/pertamina/ref-pelaksanaan', [\App\Http\Controllers\PertaminaProjectController::class, 'refPelaksanaan'])->name('pertamina.ref-pelaksanaan');
+    Route::get('manajemen-proyek/pertamina/petunjuk', [\App\Http\Controllers\PertaminaProjectController::class, 'petunjuk'])->name('pertamina.petunjuk');
+
+    Route::post('manajemen-proyek/pertamina/referensi/{type}', [\App\Http\Controllers\PertaminaProjectController::class, 'storeReference'])->name('pertamina.ref.store');
+    Route::put('manajemen-proyek/pertamina/referensi/{type}/{id}', [\App\Http\Controllers\PertaminaProjectController::class, 'updateReference'])->name('pertamina.ref.update');
+    Route::delete('manajemen-proyek/pertamina/referensi/{type}/{id}', [\App\Http\Controllers\PertaminaProjectController::class, 'destroyReference'])->name('pertamina.ref.destroy');
+
     // Laporan
     Route::get('laporan', [ReportController::class, 'index'])->middleware('role:admin')->name('reports.index');
     Route::get('laporan/semua/pdf', [ReportController::class, 'exportAllPdf'])->middleware('role:admin')->name('reports.all.pdf');

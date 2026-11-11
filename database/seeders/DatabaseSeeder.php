@@ -26,6 +26,8 @@ class DatabaseSeeder extends Seeder
         $locations = $this->seedLocations();
         $assets = $this->seedAssets($categories, $locations);
         $this->seedLoans($assets);
+
+        $this->call(PertaminaProjectSeeder::class);
     }
 
     private function seedUsers(): void
