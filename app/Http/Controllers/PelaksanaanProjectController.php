@@ -168,11 +168,28 @@ class PelaksanaanProjectController extends Controller
             ];
         });
 
+        // Master Data untuk Dropdown Modal Edit di Rekap
+        $refPic = PelaksanaanRefPic::orderBy('nama')->pluck('nama');
+        $pengelolaOptions = ['Semarang', 'Bandung'];
+        $progressOptions = [
+            ['value' => 0.00, 'label' => '0% (0.0)'],
+            ['value' => 0.20, 'label' => '20% (0.2)'],
+            ['value' => 0.40, 'label' => '40% (0.4)'],
+            ['value' => 0.60, 'label' => '60% (0.6)'],
+            ['value' => 0.75, 'label' => '75% (0.75)'],
+            ['value' => 0.90, 'label' => '90% (0.9)'],
+            ['value' => 1.00, 'label' => '100% (1.0)'],
+        ];
+
         return view('pelaksanaan.rekap', [
             'ringkasanTahap' => $ringkasanTahap,
             'totalProjects' => $totalProjects,
             'tahapList' => $tahapList,
             'trackingProjects' => $trackingProjects,
+            'refTahap' => $tahapList,
+            'refPic' => $refPic,
+            'pengelolaOptions' => $pengelolaOptions,
+            'progressOptions' => $progressOptions,
         ]);
     }
 
@@ -277,8 +294,10 @@ class PelaksanaanProjectController extends Controller
 
         $project->update($validated);
 
-        return redirect()->route('pelaksanaan.matriks')
-            ->with('status', "Data proyek #{$project->id} berhasil diperbarui.");
+        $targetRoute = $request->input('redirect_to', route('pelaksanaan.matriks'));
+
+        return redirect($targetRoute)
+            ->with('status', "Data proyek \"{$project->nama_project}\" berhasil diperbarui.");
     }
 
     /**

@@ -26,13 +26,30 @@ class OnlineMigrateController extends Controller
         // 1. Eksekusi Git Pull jika exec/shell_exec tersedia
         $gitOutput = 'Fitur exec/shell_exec tidak aktif atau dinonaktifkan hosting.';
         $gitStatus = 'info';
-        if (function_exists('exec')) {
-            $rawGit = [];
-            $exitCode = 0;
-            @exec('git pull origin master 2>&1', $rawGit, $exitCode);
-            if (!empty($rawGit)) {
-                $gitOutput = implode("\n", $rawGit);
-                $gitStatus = ($exitCode === 0) ? 'success' : 'warning';
+        $gitCandidates = ['git', '/usr/bin/git', '/usr/local/cpanel/3rdparty/bin/git', '/opt/cpanel/ea-git/usr/bin/git'];
+        $pulled = false;
+
+        foreach ($gitCandidates as $gitBin) {
+            if (function_exists('shell_exec')) {
+                $out = @shell_exec("{$gitBin} pull origin master 2>&1");
+                if ($out !== null && trim($out) !== '') {
+                    $gitOutput = trim($out);
+                    $gitStatus = (str_contains(strtolower($out), 'error') || str_contains(strtolower($out), 'fatal')) ? 'warning' : 'success';
+                    $pulled = true;
+                    break;
+                }
+            }
+
+            if (!$pulled && function_exists('exec')) {
+                $rawGit = [];
+                $exitCode = 0;
+                @exec("{$gitBin} pull origin master 2>&1", $rawGit, $exitCode);
+                if (!empty($rawGit)) {
+                    $gitOutput = implode("\n", $rawGit);
+                    $gitStatus = ($exitCode === 0) ? 'success' : 'warning';
+                    $pulled = true;
+                    break;
+                }
             }
         }
         $logs[] = [

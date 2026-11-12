@@ -212,8 +212,8 @@
     </div>
 
     <!-- MODAL POP-UP ADD / EDIT PROYEK PELAKSANAAN -->
-    <div id="projectModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
-        <div class="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-2xl bg-white border border-slate-200 shadow-2xl p-5 sm:p-7 my-auto animate-in fade-in zoom-in-95 duration-150">
+    <div id="projectModal" class="fixed inset-0 z-50 hidden overflow-y-auto backdrop-blur-sm flex items-center justify-center p-3 sm:p-4" style="background-color: rgba(15, 23, 42, 0.75) !important;">
+        <div class="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-2xl shadow-2xl p-5 sm:p-7 my-auto animate-in fade-in zoom-in-95 duration-150" style="background-color: #ffffff !important; color: #0f172a !important; border: 1px solid #e2e8f0 !important;">
             <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-5">
                 <div class="flex items-center gap-2.5">
                     <span class="grid h-9 w-9 place-items-center rounded-xl bg-forest/10 text-forest shrink-0">
@@ -241,13 +241,13 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Kode Project (Opsional)</label>
                         <input type="text" name="kode_project" id="input_kode_project" placeholder="Contoh: ENG-2026-001"
-                               class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
+                               class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest" style="background-color: #ffffff !important; color: #0f172a !important;">
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Pengelola <span class="text-rose-500">*</span></label>
                         <select name="pengelola" id="input_pengelola" required
-                                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
+                                class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest" style="background-color: #ffffff !important; color: #0f172a !important;">
                             @foreach ($pengelolaOptions as $p)
                                 <option value="{{ $p }}">{{ $p }}</option>
                             @endforeach
@@ -258,14 +258,14 @@
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Project <span class="text-rose-500">*</span></label>
                     <textarea name="nama_project" id="input_nama_project" rows="2" required placeholder="Tuliskan nama lengkap pekerjaan / kajian..."
-                              class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest"></textarea>
+                              class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest" style="background-color: #ffffff !important; color: #0f172a !important;"></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Status Pekerjaan <span class="text-rose-500">*</span></label>
-                        <select name="status_pekerjaan" id="input_status_pekerjaan" required
-                                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
+                        <select name="status_pekerjaan" id="input_status_pekerjaan" required onchange="handleStatusChange(this)"
+                                class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest" style="background-color: #ffffff !important; color: #0f172a !important;">
                             @foreach ($refTahap as $st)
                                 <option value="{{ $st->tahap }}" data-bobot="{{ $st->bobot }}">{{ $st->tahap }}</option>
                             @endforeach
@@ -275,7 +275,7 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Progress Pekerjaan <span class="text-rose-500">*</span></label>
                         <select name="progress_pekerjaan" id="input_progress_pekerjaan" required
-                                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
+                                class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest" style="background-color: #ffffff !important; color: #0f172a !important;">
                             @foreach ($progressOptions as $pr)
                                 <option value="{{ $pr['value'] }}">{{ $pr['label'] }}</option>
                             @endforeach
@@ -289,7 +289,7 @@
                         <span class="text-[11px] text-slate-500">Ketik nama baru atau pilih dari daftar</span>
                     </div>
                     <input type="text" name="pic" id="input_pic" list="picOptionsList" placeholder="Ketik nama PIC..."
-                           class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
+                           class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest" style="background-color: #ffffff !important; color: #0f172a !important;">
                     <datalist id="picOptionsList">
                         @foreach ($refPic as $picName)
                             <option value="{{ $picName }}"></option>
@@ -301,17 +301,17 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Kontrak Awal</label>
                         <input type="date" name="kontrak_awal" id="input_kontrak_awal"
-                               class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
+                               class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest" style="background-color: #ffffff !important; color: #0f172a !important;">
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Kontrak Akhir</label>
                         <input type="date" name="kontrak_akhir" id="input_kontrak_akhir" onchange="calculateRemainingDaysPreview()"
-                               class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
+                               class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest" style="background-color: #ffffff !important; color: #0f172a !important;">
                     </div>
                 </div>
 
-                <div class="rounded-xl bg-slate-50 border border-slate-200 p-3 flex items-center justify-between">
+                <div class="rounded-xl border border-slate-200 p-3 flex items-center justify-between" style="background-color: #f8fafc !important;">
                     <div>
                         <div class="text-xs font-semibold text-slate-700">Estimasi Sisa Hari (Remaining Days):</div>
                         <div class="text-[11px] text-slate-500">Dihitung otomatis dari selisih Kontrak Akhir dengan hari ini.</div>
@@ -392,6 +392,21 @@
 
         function closeModal() {
             document.getElementById('projectModal').classList.add('hidden');
+        }
+
+        function handleStatusChange(selectEl) {
+            const selectedOpt = selectEl.options[selectEl.selectedIndex];
+            const autoBobot = selectedOpt.getAttribute('data-bobot');
+            if (autoBobot !== null && autoBobot !== undefined) {
+                const formatted = parseFloat(autoBobot).toFixed(2);
+                const progSelect = document.getElementById('input_progress_pekerjaan');
+                for (let i = 0; i < progSelect.options.length; i++) {
+                    if (parseFloat(progSelect.options[i].value).toFixed(2) === formatted) {
+                        progSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
         }
 
         function calculateRemainingDaysPreview() {
