@@ -142,26 +142,26 @@
 
     <!-- MODAL PANDUAN -->
     <div id="panduanModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="relative w-full max-w-lg rounded-2xl bg-surface border border-line shadow-2xl p-6">
-            <h3 id="panduanModalTitle" class="text-base font-bold text-ink mb-4 pb-2 border-b border-line">Tambah Panduan Penggunaan</h3>
+        <div class="relative w-full max-w-lg rounded-2xl bg-white border border-slate-200 shadow-2xl p-6 text-slate-800">
+            <h3 id="panduanModalTitle" class="text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">Tambah Panduan Penggunaan</h3>
             <form id="panduanForm" method="POST" action="{{ route('pelaksanaan.ref.store', ['type' => 'panduan']) }}" class="space-y-4">
                 @csrf
                 <input type="hidden" name="_method" id="panduanMethod" value="POST">
                 <div>
-                    <label class="block text-xs font-semibold text-ink mb-1">Bagian / Warna <span class="text-rose-500">*</span></label>
-                    <input type="text" name="bagian_warna" id="panduan_input_bagian" required placeholder="Contoh: Hijau, Deadline..." class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs sm:text-sm text-ink">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Bagian / Warna <span class="text-rose-500">*</span></label>
+                    <input type="text" name="bagian_warna" id="panduan_input_bagian" required placeholder="Contoh: Hijau, Deadline..." class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-ink mb-1">Fungsi <span class="text-rose-500">*</span></label>
-                    <input type="text" name="fungsi" id="panduan_input_fungsi" required class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs sm:text-sm text-ink">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Fungsi <span class="text-rose-500">*</span></label>
+                    <input type="text" name="fungsi" id="panduan_input_fungsi" required class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-ink mb-1">Cara Penggunaan <span class="text-rose-500">*</span></label>
-                    <textarea name="cara_penggunaan" id="panduan_input_cara" rows="3" required class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs sm:text-sm text-ink"></textarea>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Cara Penggunaan <span class="text-rose-500">*</span></label>
+                    <textarea name="cara_penggunaan" id="panduan_input_cara" rows="3" required class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest"></textarea>
                 </div>
-                <div class="flex justify-end gap-2 pt-3 border-t border-line">
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-200">
                     <button type="button" onclick="closePanduanModal()" class="btn-secondary py-1.5 px-3 text-xs">Batal</button>
-                    <button type="submit" class="btn-primary py-1.5 px-4 text-xs font-semibold">Simpan</button>
+                    <button type="submit" class="btn-primary py-1.5 px-4 text-xs font-semibold shadow-sm">Simpan</button>
                 </div>
             </form>
         </div>
@@ -169,22 +169,22 @@
 
     <!-- MODAL BOBOT -->
     <div id="bobotModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="relative w-full max-w-sm rounded-2xl bg-surface border border-line shadow-2xl p-6">
-            <h3 id="bobotModalTitle" class="text-base font-bold text-ink mb-4 pb-2 border-b border-line">Tambah Standar Bobot</h3>
+        <div class="relative w-full max-w-sm rounded-2xl bg-white border border-slate-200 shadow-2xl p-6 text-slate-800">
+            <h3 id="bobotModalTitle" class="text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">Tambah Standar Bobot</h3>
             <form id="bobotForm" method="POST" action="{{ route('pelaksanaan.ref.store', ['type' => 'bobot-proses']) }}" class="space-y-4">
                 @csrf
                 <input type="hidden" name="_method" id="bobotMethod" value="POST">
                 <div>
-                    <label class="block text-xs font-semibold text-ink mb-1">Tahap Proses <span class="text-rose-500">*</span></label>
-                    <input type="text" name="tahap" id="bobot_input_tahap" required class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs sm:text-sm text-ink">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Tahap Proses <span class="text-rose-500">*</span></label>
+                    <input type="text" name="tahap" id="bobot_input_tahap" required class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-ink mb-1">Bobot (0.00 - 1.00) <span class="text-rose-500">*</span></label>
-                    <input type="number" step="0.01" min="0" max="1" name="bobot" id="bobot_input_bobot" required class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs sm:text-sm text-ink">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Bobot (0.00 - 1.00) <span class="text-rose-500">*</span></label>
+                    <input type="number" step="0.01" min="0" max="1" name="bobot" id="bobot_input_bobot" required class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
                 </div>
-                <div class="flex justify-end gap-2 pt-3 border-t border-line">
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-200">
                     <button type="button" onclick="closeBobotModal()" class="btn-secondary py-1.5 px-3 text-xs">Batal</button>
-                    <button type="submit" class="btn-primary py-1.5 px-4 text-xs font-semibold">Simpan</button>
+                    <button type="submit" class="btn-primary py-1.5 px-4 text-xs font-semibold shadow-sm">Simpan</button>
                 </div>
             </form>
         </div>

@@ -212,14 +212,21 @@
     </div>
 
     <!-- MODAL POP-UP ADD / EDIT PROYEK PELAKSANAAN -->
-    <div id="projectModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="relative w-full max-w-2xl rounded-2xl bg-surface border border-line shadow-2xl p-6 sm:p-8 animate-in fade-in zoom-in-95 duration-150">
-            <div class="flex items-center justify-between pb-4 border-b border-line mb-6">
-                <div>
-                    <h3 id="modalTitle" class="text-lg font-bold text-ink">Tambah Proyek Pelaksanaan</h3>
-                    <p class="text-xs text-ink-soft mt-0.5">Isi rincian data tahapan pelaksanaan proyek.</p>
+    <div id="projectModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+        <div class="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-2xl bg-white border border-slate-200 shadow-2xl p-5 sm:p-7 my-auto animate-in fade-in zoom-in-95 duration-150">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-5">
+                <div class="flex items-center gap-2.5">
+                    <span class="grid h-9 w-9 place-items-center rounded-xl bg-forest/10 text-forest shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                    </span>
+                    <div>
+                        <h3 id="modalTitle" class="text-base font-bold text-slate-900">Tambah Proyek Pelaksanaan</h3>
+                        <p class="text-xs text-slate-500">Isi rincian data tahapan pelaksanaan proyek.</p>
+                    </div>
                 </div>
-                <button type="button" onclick="closeModal()" class="rounded-lg p-1.5 text-ink-soft hover:bg-slate-100 hover:text-ink">
+                <button type="button" onclick="closeModal()" class="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -232,15 +239,15 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-ink mb-1">Kode Project (Opsional)</label>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Kode Project (Opsional)</label>
                         <input type="text" name="kode_project" id="input_kode_project" placeholder="Contoh: ENG-2026-001"
-                               class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs sm:text-sm text-ink focus:border-leaf focus:outline-none focus:ring-1 focus:ring-leaf">
+                               class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-ink mb-1">Pengelola <span class="text-rose-500">*</span></label>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Pengelola <span class="text-rose-500">*</span></label>
                         <select name="pengelola" id="input_pengelola" required
-                                class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs sm:text-sm text-ink focus:border-leaf focus:outline-none focus:ring-1 focus:ring-leaf">
+                                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
                             @foreach ($pengelolaOptions as $p)
                                 <option value="{{ $p }}">{{ $p }}</option>
                             @endforeach
@@ -249,16 +256,16 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-ink mb-1">Nama Project <span class="text-rose-500">*</span></label>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Project <span class="text-rose-500">*</span></label>
                     <textarea name="nama_project" id="input_nama_project" rows="2" required placeholder="Tuliskan nama lengkap pekerjaan / kajian..."
-                              class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs sm:text-sm text-ink focus:border-leaf focus:outline-none focus:ring-1 focus:ring-leaf"></textarea>
+                              class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest"></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-ink mb-1">Status Pekerjaan <span class="text-rose-500">*</span></label>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Status Pekerjaan <span class="text-rose-500">*</span></label>
                         <select name="status_pekerjaan" id="input_status_pekerjaan" required
-                                class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs sm:text-sm text-ink focus:border-leaf focus:outline-none focus:ring-1 focus:ring-leaf">
+                                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
                             @foreach ($refTahap as $st)
                                 <option value="{{ $st->tahap }}" data-bobot="{{ $st->bobot }}">{{ $st->tahap }}</option>
                             @endforeach
@@ -266,9 +273,9 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-ink mb-1">Progress Pekerjaan <span class="text-rose-500">*</span></label>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Progress Pekerjaan <span class="text-rose-500">*</span></label>
                         <select name="progress_pekerjaan" id="input_progress_pekerjaan" required
-                                class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs sm:text-sm text-ink focus:border-leaf focus:outline-none focus:ring-1 focus:ring-leaf">
+                                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
                             @foreach ($progressOptions as $pr)
                                 <option value="{{ $pr['value'] }}">{{ $pr['label'] }}</option>
                             @endforeach
@@ -278,11 +285,11 @@
 
                 <div>
                     <div class="flex items-center justify-between mb-1">
-                        <label class="block text-xs font-semibold text-ink">PIC (Penanggung Jawab)</label>
-                        <span class="text-[11px] text-ink-soft">Ketik nama baru atau pilih dari daftar</span>
+                        <label class="block text-xs font-semibold text-slate-700">PIC (Penanggung Jawab)</label>
+                        <span class="text-[11px] text-slate-500">Ketik nama baru atau pilih dari daftar</span>
                     </div>
                     <input type="text" name="pic" id="input_pic" list="picOptionsList" placeholder="Ketik nama PIC..."
-                           class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs sm:text-sm text-ink focus:border-leaf focus:outline-none focus:ring-1 focus:ring-leaf">
+                           class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
                     <datalist id="picOptionsList">
                         @foreach ($refPic as $picName)
                             <option value="{{ $picName }}"></option>
@@ -292,15 +299,15 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-ink mb-1">Kontrak Awal</label>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Kontrak Awal</label>
                         <input type="date" name="kontrak_awal" id="input_kontrak_awal"
-                               class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs sm:text-sm text-ink focus:border-leaf focus:outline-none focus:ring-1 focus:ring-leaf">
+                               class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-ink mb-1">Kontrak Akhir</label>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Kontrak Akhir</label>
                         <input type="date" name="kontrak_akhir" id="input_kontrak_akhir" onchange="calculateRemainingDaysPreview()"
-                               class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs sm:text-sm text-ink focus:border-leaf focus:outline-none focus:ring-1 focus:ring-leaf">
+                               class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
                     </div>
                 </div>
 
@@ -314,11 +321,11 @@
                     </span>
                 </div>
 
-                <div class="flex items-center justify-end gap-3 pt-4 border-t border-line mt-6">
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 mt-6">
                     <button type="button" onclick="closeModal()" class="btn-secondary px-4 py-2 text-xs sm:text-sm font-semibold">
                         Batal
                     </button>
-                    <button type="submit" class="btn-primary px-5 py-2 text-xs sm:text-sm font-semibold">
+                    <button type="submit" class="btn-primary px-5 py-2 text-xs sm:text-sm font-semibold shadow-sm">
                         Simpan Data
                     </button>
                 </div>

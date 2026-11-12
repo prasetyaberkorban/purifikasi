@@ -140,19 +140,19 @@
 
     <!-- MODAL TAHAP -->
     <div id="tahapModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="relative w-full max-w-md rounded-2xl bg-surface border border-line shadow-2xl p-6">
-            <h3 id="tahapModalTitle" class="text-base font-bold text-ink mb-4 pb-2 border-b border-line">Tambah Tahap Pelaksanaan</h3>
+        <div class="relative w-full max-w-md rounded-2xl bg-white border border-slate-200 shadow-2xl p-6 text-slate-800">
+            <h3 id="tahapModalTitle" class="text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">Tambah Tahap Pelaksanaan</h3>
             <form id="tahapForm" method="POST" action="{{ route('pelaksanaan.ref.store', ['type' => 'tahap']) }}" class="space-y-4">
                 @csrf
                 <input type="hidden" name="_method" id="tahapMethod" value="POST">
                 <div>
-                    <label class="block text-xs font-semibold text-ink mb-1">Tahap Pelaksanaan <span class="text-rose-500">*</span></label>
-                    <input type="text" name="tahap" id="tahap_input_nama" required class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs sm:text-sm text-ink">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Tahap Pelaksanaan <span class="text-rose-500">*</span></label>
+                    <input type="text" name="tahap" id="tahap_input_nama" required class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-ink mb-1">Bobot Progress <span class="text-rose-500">*</span></label>
-                        <select name="bobot" id="tahap_input_bobot" required class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs sm:text-sm text-ink">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Bobot Progress <span class="text-rose-500">*</span></label>
+                        <select name="bobot" id="tahap_input_bobot" required class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
                             <option value="0.00">0.00 (0%)</option>
                             <option value="0.20">0.20 (20%)</option>
                             <option value="0.40">0.40 (40%)</option>
@@ -163,17 +163,17 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-ink mb-1">Urutan</label>
-                        <input type="number" name="urutan" id="tahap_input_urutan" min="1" max="50" class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs sm:text-sm text-ink">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Urutan</label>
+                        <input type="number" name="urutan" id="tahap_input_urutan" min="1" max="50" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-ink mb-1">Keterangan Ringkas</label>
-                    <textarea name="keterangan" id="tahap_input_keterangan" rows="2" class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs sm:text-sm text-ink"></textarea>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Keterangan Ringkas</label>
+                    <textarea name="keterangan" id="tahap_input_keterangan" rows="2" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest"></textarea>
                 </div>
-                <div class="flex justify-end gap-2 pt-3 border-t border-line">
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-200">
                     <button type="button" onclick="closeTahapModal()" class="btn-secondary py-1.5 px-3 text-xs">Batal</button>
-                    <button type="submit" class="btn-primary py-1.5 px-4 text-xs font-semibold">Simpan</button>
+                    <button type="submit" class="btn-primary py-1.5 px-4 text-xs font-semibold shadow-sm">Simpan</button>
                 </div>
             </form>
         </div>
@@ -181,18 +181,18 @@
 
     <!-- MODAL PIC -->
     <div id="picModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="relative w-full max-w-sm rounded-2xl bg-surface border border-line shadow-2xl p-6">
-            <h3 id="picModalTitle" class="text-base font-bold text-ink mb-4 pb-2 border-b border-line">Tambah Master PIC</h3>
+        <div class="relative w-full max-w-sm rounded-2xl bg-white border border-slate-200 shadow-2xl p-6 text-slate-800">
+            <h3 id="picModalTitle" class="text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">Tambah Master PIC</h3>
             <form id="picForm" method="POST" action="{{ route('pelaksanaan.ref.store', ['type' => 'pic']) }}" class="space-y-4">
                 @csrf
                 <input type="hidden" name="_method" id="picMethod" value="POST">
                 <div>
-                    <label class="block text-xs font-semibold text-ink mb-1">Nama PIC <span class="text-rose-500">*</span></label>
-                    <input type="text" name="nama" id="pic_input_nama" required placeholder="Contoh: Dika, Siddiq..." class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-xs sm:text-sm text-ink">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Nama PIC <span class="text-rose-500">*</span></label>
+                    <input type="text" name="nama" id="pic_input_nama" required placeholder="Contoh: Dika, Siddiq..." class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest">
                 </div>
-                <div class="flex justify-end gap-2 pt-3 border-t border-line">
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-200">
                     <button type="button" onclick="closePicModal()" class="btn-secondary py-1.5 px-3 text-xs">Batal</button>
-                    <button type="submit" class="btn-primary py-1.5 px-4 text-xs font-semibold">Simpan</button>
+                    <button type="submit" class="btn-primary py-1.5 px-4 text-xs font-semibold shadow-sm">Simpan</button>
                 </div>
             </form>
         </div>
