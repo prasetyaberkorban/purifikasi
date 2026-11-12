@@ -141,8 +141,8 @@
     </div>
 
     <!-- MODAL PANDUAN -->
-    <div id="panduanModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="relative w-full max-w-lg rounded-2xl bg-white border border-slate-200 shadow-2xl p-6 text-slate-800">
+    <div id="panduanModal" class="fixed inset-0 z-50 hidden overflow-y-auto backdrop-blur-sm flex items-center justify-center p-4" style="background-color: rgba(15, 23, 42, 0.75) !important;">
+        <div class="relative w-full max-w-lg rounded-2xl shadow-2xl p-6" style="background-color: #ffffff !important; color: #0f172a !important; border: 1px solid #e2e8f0 !important;">
             <h3 id="panduanModalTitle" class="text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">Tambah Panduan Penggunaan</h3>
             <form id="panduanForm" method="POST" action="{{ route('pelaksanaan.ref.store', ['type' => 'panduan']) }}" class="space-y-4">
                 @csrf
@@ -168,8 +168,8 @@
     </div>
 
     <!-- MODAL BOBOT -->
-    <div id="bobotModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="relative w-full max-w-sm rounded-2xl bg-white border border-slate-200 shadow-2xl p-6 text-slate-800">
+    <div id="bobotModal" class="fixed inset-0 z-50 hidden overflow-y-auto backdrop-blur-sm flex items-center justify-center p-4" style="background-color: rgba(15, 23, 42, 0.75) !important;">
+        <div class="relative w-full max-w-sm rounded-2xl shadow-2xl p-6" style="background-color: #ffffff !important; color: #0f172a !important; border: 1px solid #e2e8f0 !important;">
             <h3 id="bobotModalTitle" class="text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">Tambah Standar Bobot</h3>
             <form id="bobotForm" method="POST" action="{{ route('pelaksanaan.ref.store', ['type' => 'bobot-proses']) }}" class="space-y-4">
                 @csrf

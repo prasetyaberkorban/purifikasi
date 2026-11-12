@@ -24,14 +24,15 @@ class OnlineMigrateController extends Controller
         $hasError = false;
 
         // 1. Eksekusi Git Pull jika exec/shell_exec tersedia
-        $gitOutput = 'Fitur exec/shell_exec tidak aktif atau dinonaktifkan hosting.';
+        $gitOutput = 'Fitur exec/shell_exec tidak aktif atau dinonaktifkan hosting. Silakan lakukan Git Pull manual melalui cPanel Git Version Control.';
         $gitStatus = 'info';
+        $baseDir = escapeshellarg(base_path());
         $gitCandidates = ['git', '/usr/bin/git', '/usr/local/cpanel/3rdparty/bin/git', '/opt/cpanel/ea-git/usr/bin/git'];
         $pulled = false;
 
         foreach ($gitCandidates as $gitBin) {
             if (function_exists('shell_exec')) {
-                $out = @shell_exec("{$gitBin} pull origin master 2>&1");
+                $out = @shell_exec("{$gitBin} -C {$baseDir} pull origin master 2>&1");
                 if ($out !== null && trim($out) !== '') {
                     $gitOutput = trim($out);
                     $gitStatus = (str_contains(strtolower($out), 'error') || str_contains(strtolower($out), 'fatal')) ? 'warning' : 'success';
@@ -43,7 +44,7 @@ class OnlineMigrateController extends Controller
             if (!$pulled && function_exists('exec')) {
                 $rawGit = [];
                 $exitCode = 0;
-                @exec("{$gitBin} pull origin master 2>&1", $rawGit, $exitCode);
+                @exec("{$gitBin} -C {$baseDir} pull origin master 2>&1", $rawGit, $exitCode);
                 if (!empty($rawGit)) {
                     $gitOutput = implode("\n", $rawGit);
                     $gitStatus = ($exitCode === 0) ? 'success' : 'warning';

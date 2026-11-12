@@ -171,6 +171,9 @@ Route::middleware(['auth', 'role'])->group(function () {
     Route::put('manajemen-proyek/pertamina/referensi/{type}/{id}', [\App\Http\Controllers\PertaminaProjectController::class, 'updateReference'])->name('pertamina.ref.update');
     Route::delete('manajemen-proyek/pertamina/referensi/{type}/{id}', [\App\Http\Controllers\PertaminaProjectController::class, 'destroyReference'])->name('pertamina.ref.destroy');
 
+    Route::get('manajemen-proyek/pertamina/export/pdf', [\App\Http\Controllers\PertaminaProjectController::class, 'exportPdf'])->name('pertamina.export.pdf');
+    Route::get('manajemen-proyek/pertamina/export/excel', [\App\Http\Controllers\PertaminaProjectController::class, 'exportExcel'])->name('pertamina.export.excel');
+
     // Manajemen Proyek - Rekap Tahapan Pelaksanaan 2026
     Route::get('manajemen-proyek/pelaksanaan', fn () => redirect()->route('pelaksanaan.matriks'))->name('pelaksanaan.index');
     Route::get('manajemen-proyek/pelaksanaan/matriks', [\App\Http\Controllers\PelaksanaanProjectController::class, 'matriks'])->name('pelaksanaan.matriks');
@@ -185,6 +188,9 @@ Route::middleware(['auth', 'role'])->group(function () {
     Route::post('manajemen-proyek/pelaksanaan/referensi/{type}', [\App\Http\Controllers\PelaksanaanProjectController::class, 'storeReferensi'])->name('pelaksanaan.ref.store');
     Route::put('manajemen-proyek/pelaksanaan/referensi/{type}/{id}', [\App\Http\Controllers\PelaksanaanProjectController::class, 'updateReferensi'])->name('pelaksanaan.ref.update');
     Route::delete('manajemen-proyek/pelaksanaan/referensi/{type}/{id}', [\App\Http\Controllers\PelaksanaanProjectController::class, 'destroyReferensi'])->name('pelaksanaan.ref.destroy');
+
+    Route::get('manajemen-proyek/pelaksanaan/export/pdf', [\App\Http\Controllers\PelaksanaanProjectController::class, 'exportPdf'])->name('pelaksanaan.export.pdf');
+    Route::get('manajemen-proyek/pelaksanaan/export/excel', [\App\Http\Controllers\PelaksanaanProjectController::class, 'exportExcel'])->name('pelaksanaan.export.excel');
 
     // Laporan
     Route::get('laporan', [ReportController::class, 'index'])->middleware('role:admin')->name('reports.index');

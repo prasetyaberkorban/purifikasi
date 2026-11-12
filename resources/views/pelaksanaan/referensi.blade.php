@@ -139,8 +139,8 @@
     </div>
 
     <!-- MODAL TAHAP -->
-    <div id="tahapModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="relative w-full max-w-md rounded-2xl bg-white border border-slate-200 shadow-2xl p-6 text-slate-800">
+    <div id="tahapModal" class="fixed inset-0 z-50 hidden overflow-y-auto backdrop-blur-sm flex items-center justify-center p-4" style="background-color: rgba(15, 23, 42, 0.75) !important;">
+        <div class="relative w-full max-w-md rounded-2xl shadow-2xl p-6" style="background-color: #ffffff !important; color: #0f172a !important; border: 1px solid #e2e8f0 !important;">
             <h3 id="tahapModalTitle" class="text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">Tambah Tahap Pelaksanaan</h3>
             <form id="tahapForm" method="POST" action="{{ route('pelaksanaan.ref.store', ['type' => 'tahap']) }}" class="space-y-4">
                 @csrf
@@ -180,8 +180,8 @@
     </div>
 
     <!-- MODAL PIC -->
-    <div id="picModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="relative w-full max-w-sm rounded-2xl bg-white border border-slate-200 shadow-2xl p-6 text-slate-800">
+    <div id="picModal" class="fixed inset-0 z-50 hidden overflow-y-auto backdrop-blur-sm flex items-center justify-center p-4" style="background-color: rgba(15, 23, 42, 0.75) !important;">
+        <div class="relative w-full max-w-sm rounded-2xl shadow-2xl p-6" style="background-color: #ffffff !important; color: #0f172a !important; border: 1px solid #e2e8f0 !important;">
             <h3 id="picModalTitle" class="text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">Tambah Master PIC</h3>
             <form id="picForm" method="POST" action="{{ route('pelaksanaan.ref.store', ['type' => 'pic']) }}" class="space-y-4">
                 @csrf

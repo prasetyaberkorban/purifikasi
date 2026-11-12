@@ -228,6 +228,30 @@ class PelaksanaanProjectController extends Controller
     }
 
     /**
+     * Export PDF (Per Sheet / Semua Sheet)
+     */
+    public function exportPdf(Request $request): \Illuminate\Http\Response
+    {
+        $this->ensureTablesSeeded();
+        $sheet = $request->string('sheet', 'matriks')->toString();
+        $filters = $request->only(['q', 'pengelola', 'status_pekerjaan', 'pic']);
+
+        return app(\App\Services\ProjectManagementExportService::class)->exportPelaksanaanPdf($sheet, $filters);
+    }
+
+    /**
+     * Export Excel (Per Sheet / Semua Sheet)
+     */
+    public function exportExcel(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $this->ensureTablesSeeded();
+        $sheet = $request->string('sheet', 'matriks')->toString();
+        $filters = $request->only(['q', 'pengelola', 'status_pekerjaan', 'pic']);
+
+        return app(\App\Services\ProjectManagementExportService::class)->exportPelaksanaanExcel($sheet, $filters);
+    }
+
+    /**
      * Simpan Proyek Baru (Matriks Pelaksanaan)
      */
     public function storeProject(Request $request): RedirectResponse
