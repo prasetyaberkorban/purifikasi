@@ -171,6 +171,21 @@ Route::middleware(['auth', 'role'])->group(function () {
     Route::put('manajemen-proyek/pertamina/referensi/{type}/{id}', [\App\Http\Controllers\PertaminaProjectController::class, 'updateReference'])->name('pertamina.ref.update');
     Route::delete('manajemen-proyek/pertamina/referensi/{type}/{id}', [\App\Http\Controllers\PertaminaProjectController::class, 'destroyReference'])->name('pertamina.ref.destroy');
 
+    // Manajemen Proyek - Rekap Tahapan Pelaksanaan 2026
+    Route::get('manajemen-proyek/pelaksanaan', fn () => redirect()->route('pelaksanaan.matriks'))->name('pelaksanaan.index');
+    Route::get('manajemen-proyek/pelaksanaan/matriks', [\App\Http\Controllers\PelaksanaanProjectController::class, 'matriks'])->name('pelaksanaan.matriks');
+    Route::post('manajemen-proyek/pelaksanaan/matriks', [\App\Http\Controllers\PelaksanaanProjectController::class, 'storeProject'])->name('pelaksanaan.projects.store');
+    Route::put('manajemen-proyek/pelaksanaan/matriks/{project}', [\App\Http\Controllers\PelaksanaanProjectController::class, 'updateProject'])->name('pelaksanaan.projects.update');
+    Route::delete('manajemen-proyek/pelaksanaan/matriks/{project}', [\App\Http\Controllers\PelaksanaanProjectController::class, 'destroyProject'])->name('pelaksanaan.projects.destroy');
+
+    Route::get('manajemen-proyek/pelaksanaan/rekap', [\App\Http\Controllers\PelaksanaanProjectController::class, 'rekap'])->name('pelaksanaan.rekap');
+    Route::get('manajemen-proyek/pelaksanaan/referensi', [\App\Http\Controllers\PelaksanaanProjectController::class, 'referensi'])->name('pelaksanaan.referensi');
+    Route::get('manajemen-proyek/pelaksanaan/petunjuk', [\App\Http\Controllers\PelaksanaanProjectController::class, 'petunjuk'])->name('pelaksanaan.petunjuk');
+
+    Route::post('manajemen-proyek/pelaksanaan/referensi/{type}', [\App\Http\Controllers\PelaksanaanProjectController::class, 'storeReferensi'])->name('pelaksanaan.ref.store');
+    Route::put('manajemen-proyek/pelaksanaan/referensi/{type}/{id}', [\App\Http\Controllers\PelaksanaanProjectController::class, 'updateReferensi'])->name('pelaksanaan.ref.update');
+    Route::delete('manajemen-proyek/pelaksanaan/referensi/{type}/{id}', [\App\Http\Controllers\PelaksanaanProjectController::class, 'destroyReferensi'])->name('pelaksanaan.ref.destroy');
+
     // Laporan
     Route::get('laporan', [ReportController::class, 'index'])->middleware('role:admin')->name('reports.index');
     Route::get('laporan/semua/pdf', [ReportController::class, 'exportAllPdf'])->middleware('role:admin')->name('reports.all.pdf');

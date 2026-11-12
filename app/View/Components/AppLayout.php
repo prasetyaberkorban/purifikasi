@@ -198,8 +198,39 @@ class AppLayout extends Component
                         ],
                         'active' => ['pertamina.*'],
                     ],
+                    [
+                        'key' => 'pelaksanaan',
+                        'label' => 'Rekap Tahapan Pelaksanaan 2026',
+                        'children' => [
+                            [
+                                'label' => 'Matriks Pelaksanaan',
+                                'route' => route('pelaksanaan.matriks'),
+                                'active' => ['pelaksanaan.matriks'],
+                                'is_active' => request()->routeIs('pelaksanaan.matriks'),
+                            ],
+                            [
+                                'label' => 'Rekap Pelaksanaan',
+                                'route' => route('pelaksanaan.rekap'),
+                                'active' => ['pelaksanaan.rekap'],
+                                'is_active' => request()->routeIs('pelaksanaan.rekap'),
+                            ],
+                            [
+                                'label' => 'Referensi Pelaksanaan',
+                                'route' => route('pelaksanaan.referensi'),
+                                'active' => ['pelaksanaan.referensi'],
+                                'is_active' => request()->routeIs('pelaksanaan.referensi'),
+                            ],
+                            [
+                                'label' => 'Petunjuk Pra-Kontrak',
+                                'route' => route('pelaksanaan.petunjuk'),
+                                'active' => ['pelaksanaan.petunjuk'],
+                                'is_active' => request()->routeIs('pelaksanaan.petunjuk'),
+                            ],
+                        ],
+                        'active' => ['pelaksanaan.*'],
+                    ],
                 ],
-                'active' => ['contracts.*', 'pertamina.*'],
+                'active' => ['contracts.*', 'pertamina.*', 'pelaksanaan.*'],
             ],
             [
                 'key' => 'activities',

@@ -177,21 +177,31 @@
         <!-- Quick Access Navigation Buttons -->
         <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
             <h3 class="text-sm font-bold text-slate-300 mb-3">Tautan Langsung Aplikasi:</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <a href="{{ route('pertamina.matriks') }}" class="flex items-center justify-between p-3.5 rounded-xl bg-slate-950 hover:bg-emerald-950/40 border border-slate-800 hover:border-emerald-500/30 text-white transition-all group">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <a href="{{ route('pelaksanaan.matriks') }}" class="flex items-center justify-between p-3.5 rounded-xl bg-slate-950 hover:bg-emerald-950/40 border border-slate-800 hover:border-emerald-500/30 text-white transition-all group">
                     <div>
-                        <div class="text-xs font-bold text-white group-hover:text-emerald-300">Matriks Pra-Kontrak</div>
-                        <div class="text-[11px] text-slate-400">Rekap 29 proyek Pertamina</div>
+                        <div class="text-xs font-bold text-white group-hover:text-emerald-300">Matriks Pelaksanaan 2026</div>
+                        <div class="text-[11px] text-slate-400">17 Proyek Pelaksanaan Aktif</div>
                     </div>
                     <svg class="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                 </a>
 
-                <a href="{{ route('pertamina.dashboard') }}" class="flex items-center justify-between p-3.5 rounded-xl bg-slate-950 hover:bg-emerald-950/40 border border-slate-800 hover:border-emerald-500/30 text-white transition-all group">
+                <a href="{{ route('pelaksanaan.rekap') }}" class="flex items-center justify-between p-3.5 rounded-xl bg-slate-950 hover:bg-emerald-950/40 border border-slate-800 hover:border-emerald-500/30 text-white transition-all group">
                     <div>
-                        <div class="text-xs font-bold text-white group-hover:text-emerald-300">Dashboard Pra-Kontrak</div>
-                        <div class="text-[11px] text-slate-400">Statistik, KPI, & Ringkasan</div>
+                        <div class="text-xs font-bold text-white group-hover:text-emerald-300">Rekap Pelaksanaan 2026</div>
+                        <div class="text-[11px] text-slate-400">Tracking 7 Tahap & Checklist</div>
+                    </div>
+                    <svg class="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </a>
+
+                <a href="{{ route('pertamina.matriks') }}" class="flex items-center justify-between p-3.5 rounded-xl bg-slate-950 hover:bg-emerald-950/40 border border-slate-800 hover:border-emerald-500/30 text-white transition-all group">
+                    <div>
+                        <div class="text-xs font-bold text-white group-hover:text-emerald-300">Matriks Pertamina</div>
+                        <div class="text-[11px] text-slate-400">Rekap 29 proyek penawaran</div>
                     </div>
                     <svg class="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>

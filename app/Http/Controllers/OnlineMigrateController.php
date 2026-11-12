@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PelaksanaanProject;
 use App\Models\PertaminaProject;
+use Database\Seeders\PelaksanaanProjectSeeder;
 use Database\Seeders\PertaminaProjectSeeder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -77,38 +79,90 @@ class OnlineMigrateController extends Controller
             'detail' => $pertaminaDirectMsg,
         ];
 
-        // 4. Seeder Pertamina Project & Referensi
-        $seedStatus = 'info';
-        $seedMsg = '';
+        // 4. Verifikasi & Native Fallback Tabel Rekap Pelaksanaan 2026
+        $pelaksanaanDirectStatus = 'info';
+        $pelaksanaanDirectMsg = 'Tabel pelaksanaan sudah ada di database.';
+        try {
+            if (!Schema::hasTable('pelaksanaan_projects')) {
+                PelaksanaanProjectController::createPelaksanaanTablesDirectly();
+                $pelaksanaanDirectStatus = 'success';
+                $pelaksanaanDirectMsg = 'Semua 5 tabel Rekap Pelaksanaan 2026 berhasil dibuat langsung via Schema Builder!';
+            }
+        } catch (\Throwable $e) {
+            $pelaksanaanDirectStatus = 'danger';
+            $pelaksanaanDirectMsg = 'Gagal membuat tabel Rekap Pelaksanaan: ' . $e->getMessage();
+            $hasError = true;
+            Log::error('OnlineMigrate Pelaksanaan direct table creation failed: ' . $e->getMessage());
+        }
+        $logs[] = [
+            'step' => 'Verifikasi Tabel Rekap Pelaksanaan 2026',
+            'status' => $pelaksanaanDirectStatus,
+            'detail' => $pelaksanaanDirectMsg,
+        ];
+
+        // 5. Seeder Pertamina Project & Referensi
+        $seedPertaminaStatus = 'info';
+        $seedPertaminaMsg = '';
         try {
             if (Schema::hasTable('pertamina_projects')) {
                 $projectCount = PertaminaProject::count();
                 if ($projectCount === 0) {
                     app(PertaminaProjectSeeder::class)->run();
                     $afterCount = PertaminaProject::count();
-                    $seedStatus = 'success';
-                    $seedMsg = "Seeder berhasil dieksekusi. Berhasil memasukkan {$afterCount} data proyek & master data referensi.";
+                    $seedPertaminaStatus = 'success';
+                    $seedPertaminaMsg = "Seeder Pertamina berhasil dieksekusi. Berhasil memasukkan {$afterCount} data proyek & master data referensi.";
                 } else {
-                    $seedStatus = 'info';
-                    $seedMsg = "Tabel pertamina_projects sudah terisi {$projectCount} data proyek. Seeder dilewati agar tidak menimpa data.";
+                    $seedPertaminaStatus = 'info';
+                    $seedPertaminaMsg = "Tabel pertamina_projects sudah terisi {$projectCount} data proyek. Seeder dilewati.";
                 }
             } else {
-                $seedStatus = 'danger';
-                $seedMsg = 'Tabel pertamina_projects tidak ditemukan, seeding dilewati.';
+                $seedPertaminaStatus = 'danger';
+                $seedPertaminaMsg = 'Tabel pertamina_projects tidak ditemukan, seeding dilewati.';
             }
         } catch (\Throwable $e) {
-            $seedStatus = 'danger';
-            $seedMsg = 'Seeder Pertamina: ' . $e->getMessage();
+            $seedPertaminaStatus = 'danger';
+            $seedPertaminaMsg = 'Seeder Pertamina: ' . $e->getMessage();
             $hasError = true;
             Log::error('OnlineMigrate Pertamina seeder failed: ' . $e->getMessage());
         }
         $logs[] = [
             'step' => 'Seeding Data Awal Pertamina',
-            'status' => $seedStatus,
-            'detail' => $seedMsg,
+            'status' => $seedPertaminaStatus,
+            'detail' => $seedPertaminaMsg,
         ];
 
-        // 5. Bersihkan Cache (Route, View, Config)
+        // 6. Seeder Rekap Pelaksanaan 2026 & Referensi
+        $seedPelaksanaanStatus = 'info';
+        $seedPelaksanaanMsg = '';
+        try {
+            if (Schema::hasTable('pelaksanaan_projects')) {
+                $projectCount = PelaksanaanProject::count();
+                if ($projectCount === 0) {
+                    app(PelaksanaanProjectSeeder::class)->run();
+                    $afterCount = PelaksanaanProject::count();
+                    $seedPelaksanaanStatus = 'success';
+                    $seedPelaksanaanMsg = "Seeder Rekap Pelaksanaan berhasil dieksekusi. Berhasil memasukkan {$afterCount} proyek pelaksanaan & master data.";
+                } else {
+                    $seedPelaksanaanStatus = 'info';
+                    $seedPelaksanaanMsg = "Tabel pelaksanaan_projects sudah terisi {$projectCount} data proyek. Seeder dilewati.";
+                }
+            } else {
+                $seedPelaksanaanStatus = 'danger';
+                $seedPelaksanaanMsg = 'Tabel pelaksanaan_projects tidak ditemukan, seeding dilewati.';
+            }
+        } catch (\Throwable $e) {
+            $seedPelaksanaanStatus = 'danger';
+            $seedPelaksanaanMsg = 'Seeder Pelaksanaan: ' . $e->getMessage();
+            $hasError = true;
+            Log::error('OnlineMigrate Pelaksanaan seeder failed: ' . $e->getMessage());
+        }
+        $logs[] = [
+            'step' => 'Seeding Data Awal Rekap Pelaksanaan 2026',
+            'status' => $seedPelaksanaanStatus,
+            'detail' => $seedPelaksanaanMsg,
+        ];
+
+        // 7. Bersihkan Cache (Route, View, Config)
         $cacheStatus = 'success';
         $cacheMsg = '';
         try {
@@ -124,20 +178,27 @@ class OnlineMigrateController extends Controller
             'detail' => $cacheMsg,
         ];
 
-        // Status daftar tabel terkait Pertamina di DB
-        $pertaminaTables = [
-            'pertamina_projects' => 'Matriks Pra-Kontrak',
-            'pertamina_ref_tahap_pra_kontrak' => 'Ref: Tahap Pra-Kontrak',
-            'pertamina_ref_hasil_penawaran' => 'Ref: Hasil Penawaran',
-            'pertamina_ref_status_proses' => 'Ref: Status Proses',
-            'pertamina_ref_tahap_pelaksanaan' => 'Ref: Tahap Pelaksanaan',
-            'pertamina_ref_pic' => 'Ref: PIC Master',
-            'pertamina_guide_panduan' => 'Petunjuk: Panduan',
-            'pertamina_guide_bobot_proses' => 'Petunjuk: Standar Bobot',
+        // Status daftar tabel terkait Manajemen Proyek di DB
+        $allTables = [
+            // Proyek Pertamina
+            'pertamina_projects' => 'Pertamina: Matriks Pra-Kontrak',
+            'pertamina_ref_tahap_pra_kontrak' => 'Pertamina: Ref Tahap Pra-Kontrak',
+            'pertamina_ref_hasil_penawaran' => 'Pertamina: Ref Hasil Penawaran',
+            'pertamina_ref_status_proses' => 'Pertamina: Ref Status Proses',
+            'pertamina_ref_tahap_pelaksanaan' => 'Pertamina: Ref Tahap Pelaksanaan',
+            'pertamina_ref_pic' => 'Pertamina: Ref Master PIC',
+            'pertamina_guide_panduan' => 'Pertamina: Petunjuk Panduan',
+            'pertamina_guide_bobot_proses' => 'Pertamina: Petunjuk Standar Bobot',
+            // Rekap Pelaksanaan 2026
+            'pelaksanaan_projects' => 'Pelaksanaan: Matriks Pelaksanaan',
+            'pelaksanaan_ref_tahap' => 'Pelaksanaan: Ref 7 Tahap Pekerjaan',
+            'pelaksanaan_ref_pic' => 'Pelaksanaan: Ref Master PIC',
+            'pelaksanaan_guide_panduan' => 'Pelaksanaan: Panduan Penggunaan',
+            'pelaksanaan_guide_bobot_proses' => 'Pelaksanaan: Standar Bobot Proses',
         ];
 
         $tableChecks = [];
-        foreach ($pertaminaTables as $table => $label) {
+        foreach ($allTables as $table => $label) {
             $exists = Schema::hasTable($table);
             $count = $exists ? DB::table($table)->count() : 0;
             $tableChecks[] = [
